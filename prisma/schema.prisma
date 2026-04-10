@@ -1,0 +1,283 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Workspace {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  color       String    @default("#6366f1")
+  icon        String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  projects Project[]
+  labels   Label[]
+  goals    Goal[]
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  workspaceId String
+  name        String
+  description String?
+  status      String   @default("active") // active, paused, completed, archived
+  color       String   @default("#6366f1")
+  startDate   String?
+  targetDate  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  epics       Epic[]
+  tasks       Task[]
+  milestones  Milestone[]
+  sprints     Sprint[]
+  kpis        KPI[]
+  goalLinks   GoalProject[]
+  mindMaps    MindMap[]
+}
+
+model Epic {
+  id          String   @id @default(cuid())
+  projectId   String
+  name        String
+  description String?
+  status      String   @default("todo") // todo, in_progress, done
+  priority    String   @default("medium") // urgent, high, medium, low
+  startDate   String?
+  targetDate  String?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks   Task[]
+}
+
+model Task {
+  id           String    @id @default(cuid())
+  epicId       String?
+  projectId    String
+  parentTaskId String?
+  title        String
+  description  String?
+  status       String    @default("todo") // backlog, todo, in_progress, in_review, done, cancelled
+  priority     String    @default("none") // urgent, high, medium, low, none
+  dueDate      String?
+  startDate    String?
+  estimatedHours Float?
+  actualHours    Float?
+  sortOrder    Int       @default(0)
+  completedAt  DateTime?
+  archivedAt   DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  project      Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  epic         Epic?           @relation(fields: [epicId], references: [id], onDelete: SetNull)
+  parentTask   Task?           @relation("SubTasks", fields: [parentTaskId], references: [id], onDelete: SetNull)
+  subtasks     Task[]          @relation("SubTasks")
+  labels       TaskLabel[]
+  dailyPlanTasks DailyPlanTask[]
+  sprintTasks  SprintTask[]
+  predecessorDeps Dependency[] @relation("PredecessorDeps")
+  successorDeps   Dependency[] @relation("SuccessorDeps")
+  mindMapNodes MindMapNode[]
+}
+
+model Label {
+  id          String   @id @default(cuid())
+  workspaceId String
+  name        String
+  color       String   @default("#6366f1")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  tasks     TaskLabel[]
+}
+
+model TaskLabel {
+  taskId  String
+  labelId String
+
+  task  Task  @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  label Label @relation(fields: [labelId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, labelId])
+}
+
+model DailyPlan {
+  id        String   @id @default(cuid())
+  date      String   @unique // YYYY-MM-DD
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tasks DailyPlanTask[]
+}
+
+model DailyPlanTask {
+  dailyPlanId String
+  taskId      String
+  sortOrder   Int    @default(0)
+
+  dailyPlan DailyPlan @relation(fields: [dailyPlanId], references: [id], onDelete: Cascade)
+  task      Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@id([dailyPlanId, taskId])
+}
+
+model Dependency {
+  id                String @id @default(cuid())
+  predecessorTaskId String
+  successorTaskId   String
+  type              String @default("finish_to_start") // finish_to_start, start_to_start, finish_to_finish, start_to_finish
+
+  predecessorTask Task @relation("PredecessorDeps", fields: [predecessorTaskId], references: [id], onDelete: Cascade)
+  successorTask   Task @relation("SuccessorDeps", fields: [successorTaskId], references: [id], onDelete: Cascade)
+
+  @@unique([predecessorTaskId, successorTaskId])
+}
+
+model Milestone {
+  id          String    @id @default(cuid())
+  projectId   String
+  name        String
+  description String?
+  targetDate  String
+  status      String    @default("pending") // pending, reached, missed
+  reachedAt   DateTime?
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model Sprint {
+  id              String   @id @default(cuid())
+  projectId       String
+  name            String
+  startDate       String
+  endDate         String
+  status          String   @default("planning") // planning, active, completed
+  goalDescription String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  project Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks   SprintTask[]
+}
+
+model SprintTask {
+  sprintId String
+  taskId   String
+  addedAt  DateTime @default(now())
+
+  sprint Sprint @relation(fields: [sprintId], references: [id], onDelete: Cascade)
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@id([sprintId, taskId])
+}
+
+model Goal {
+  id          String    @id @default(cuid())
+  workspaceId String
+  title       String
+  description String?
+  status      String    @default("not_started") // not_started, in_progress, achieved, missed, abandoned
+  startDate   String?
+  targetDate  String?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  workspace    Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  projectLinks GoalProject[]
+  kpis         KPI[]
+}
+
+model GoalProject {
+  goalId    String
+  projectId String
+
+  goal    Goal    @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@id([goalId, projectId])
+}
+
+model KPI {
+  id           String   @id @default(cuid())
+  goalId       String?
+  projectId    String?
+  name         String
+  description  String?
+  unit         String   @default("%")
+  targetValue  Float
+  currentValue Float    @default(0)
+  direction    String   @default("increase") // increase, decrease
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  goal    Goal?      @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  project Project?   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  entries KPIEntry[]
+}
+
+model KPIEntry {
+  id         String   @id @default(cuid())
+  kpiId      String
+  value      Float
+  recordedAt DateTime @default(now())
+  note       String?
+
+  kpi KPI @relation(fields: [kpiId], references: [id], onDelete: Cascade)
+}
+
+model MindMap {
+  id          String   @id @default(cuid())
+  projectId   String?
+  title       String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  project Project?      @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  nodes   MindMapNode[]
+}
+
+model MindMapNode {
+  id               String   @id @default(cuid())
+  mindMapId        String
+  parentNodeId     String?
+  content          String
+  color            String?
+  positionX        Float    @default(0)
+  positionY        Float    @default(0)
+  convertedToTaskId String?
+  sortOrder        Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  mindMap       MindMap       @relation(fields: [mindMapId], references: [id], onDelete: Cascade)
+  parentNode    MindMapNode?  @relation("NodeTree", fields: [parentNodeId], references: [id], onDelete: SetNull)
+  childNodes    MindMapNode[] @relation("NodeTree")
+  convertedTask Task?         @relation(fields: [convertedToTaskId], references: [id], onDelete: SetNull)
+}
+
+model ActivityLog {
+  id         String   @id @default(cuid())
+  entityType String   // task, project, epic, goal, milestone, sprint, kpi
+  entityId   String
+  action     String   // created, updated, deleted, status_changed, moved, completed, archived
+  details    String?  // JSON string
+  occurredAt DateTime @default(now())
+}

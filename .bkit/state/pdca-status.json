@@ -1,0 +1,103 @@
+{
+  "version": "2.0",
+  "lastUpdated": "2026-04-10T14:22:34.890Z",
+  "activeFeatures": [
+    "pm",
+    "test"
+  ],
+  "primaryFeature": "pm",
+  "features": {
+    "pm": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-04-10T14:19:04.016Z",
+        "lastUpdated": "2026-04-10T14:22:34.890Z"
+      },
+      "lastFile": "/Users/jongsports/pm/src/app/layout.tsx"
+    },
+    "test": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-04-10T14:20:03.401Z",
+        "lastUpdated": "2026-04-10T14:20:03.401Z"
+      },
+      "lastFile": "/Users/jongsports/pm/src/test/setup.ts"
+    }
+  },
+  "pipeline": {
+    "currentPhase": 1,
+    "level": "Dynamic",
+    "phaseHistory": []
+  },
+  "session": {
+    "startedAt": "2026-04-10T13:39:04.199Z",
+    "onboardingCompleted": false,
+    "lastActivity": "2026-04-10T14:22:34.890Z"
+  },
+  "history": [
+    {
+      "timestamp": "2026-04-10T14:19:04.016Z",
+      "feature": "pm",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-04-10T14:19:06.836Z",
+      "feature": "pm",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-04-10T14:19:47.502Z",
+      "feature": "pm",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-04-10T14:19:51.246Z",
+      "feature": "pm",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-04-10T14:20:00.776Z",
+      "feature": "pm",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-04-10T14:20:02.592Z",
+      "feature": "pm",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-04-10T14:20:03.401Z",
+      "feature": "test",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-04-10T14:20:07.174Z",
+      "feature": "pm",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-04-10T14:22:34.890Z",
+      "feature": "pm",
+      "phase": "do",
+      "action": "updated"
+    }
+  ]
+}
