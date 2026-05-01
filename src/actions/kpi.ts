@@ -10,7 +10,7 @@ import type { KPI } from "@prisma/client";
 
 export async function createKPI(input: unknown): Promise<ActionResult<KPI>> {
   const parsed = kpiSchema.safeParse(input);
-  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "Invalid input");
+  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "잘못된 입력입니다");
   if (!parsed.data.goalId && !parsed.data.projectId) {
     return failure("KPI must be linked to a goal or project");
   }
@@ -24,7 +24,7 @@ export async function createKPI(input: unknown): Promise<ActionResult<KPI>> {
     return success(kpi);
   } catch (e) {
     console.error(e);
-    return failure("Failed to create KPI");
+    return failure("KPI 생성에 실패했습니다");
   }
 }
 
@@ -41,7 +41,7 @@ export async function recordKPIEntry(
     return success(undefined);
   } catch (e) {
     console.error(e);
-    return failure("Failed to record KPI entry");
+    return failure("KPI 기록에 실패했습니다");
   }
 }
 
@@ -61,6 +61,6 @@ export async function deleteKPI(id: string): Promise<ActionResult<void>> {
     return success(undefined);
   } catch (e) {
     console.error(e);
-    return failure("Failed to delete KPI");
+    return failure("KPI 삭제에 실패했습니다");
   }
 }

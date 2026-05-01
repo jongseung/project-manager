@@ -17,9 +17,9 @@ async function userOwnsNode(nodeId: string): Promise<boolean> {
 
 export async function createMindMap(input: unknown): Promise<ActionResult<MindMap>> {
   const parsed = mindMapSchema.safeParse(input);
-  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "Invalid input");
+  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "잘못된 입력입니다");
   const orgId = await getCurrentOrgId();
-  if (!orgId) return failure("Unauthorized");
+  if (!orgId) return failure("인증이 필요합니다");
   if (parsed.data.projectId && !(await userOwnsProject(parsed.data.projectId))) {
     return failure("프로젝트에 접근 권한이 없습니다");
   }
@@ -47,7 +47,7 @@ export async function deleteMindMap(id: string): Promise<ActionResult<void>> {
 
 export async function createNode(input: unknown): Promise<ActionResult<MindMapNode>> {
   const parsed = nodeSchema.safeParse(input);
-  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "Invalid input");
+  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "잘못된 입력입니다");
   if (!(await userOwnsMindMap(parsed.data.mindMapId))) return failure("마인드맵에 접근 권한이 없습니다");
   try {
     const node = await db.mindMapNode.create({ data: parsed.data });
@@ -61,7 +61,7 @@ export async function createNode(input: unknown): Promise<ActionResult<MindMapNo
 
 export async function updateNode(id: string, input: unknown): Promise<ActionResult<MindMapNode>> {
   const parsed = nodeSchema.partial().safeParse(input);
-  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "Invalid input");
+  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "잘못된 입력입니다");
   if (!(await userOwnsNode(id))) return failure("노드에 접근 권한이 없습니다");
   try {
     const node = await db.mindMapNode.update({ where: { id }, data: parsed.data });

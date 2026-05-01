@@ -10,7 +10,7 @@ import type { Objective, KeyResult } from "@prisma/client";
 
 export async function createObjective(input: unknown): Promise<ActionResult<Objective>> {
   const parsed = objectiveSchema.safeParse(input);
-  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "Invalid input");
+  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "잘못된 입력입니다");
   if (!(await userOwnsProject(parsed.data.projectId))) return failure("프로젝트에 접근 권한이 없습니다");
 
   try {
@@ -32,7 +32,7 @@ export async function createObjective(input: unknown): Promise<ActionResult<Obje
 
 export async function updateObjective(id: string, input: unknown): Promise<ActionResult<Objective>> {
   const parsed = objectiveSchema.partial().safeParse(input);
-  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "Invalid input");
+  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "잘못된 입력입니다");
   if (!(await userOwnsObjective(id))) return failure("OKR에 접근 권한이 없습니다");
 
   try {
@@ -59,7 +59,7 @@ export async function deleteObjective(id: string): Promise<ActionResult<void>> {
 
 export async function createKeyResult(input: unknown): Promise<ActionResult<KeyResult>> {
   const parsed = keyResultSchema.safeParse(input);
-  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "Invalid input");
+  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "잘못된 입력입니다");
   if (!(await userOwnsObjective(parsed.data.objectiveId))) return failure("OKR에 접근 권한이 없습니다");
 
   try {
@@ -80,7 +80,7 @@ export async function createKeyResult(input: unknown): Promise<ActionResult<KeyR
 
 export async function updateKeyResult(id: string, input: unknown): Promise<ActionResult<KeyResult>> {
   const parsed = keyResultSchema.partial().safeParse(input);
-  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "Invalid input");
+  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "잘못된 입력입니다");
   if (!(await userOwnsKeyResult(id))) return failure("KR에 접근 권한이 없습니다");
 
   try {

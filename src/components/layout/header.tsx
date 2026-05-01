@@ -61,8 +61,28 @@ export function Header({ title, children }: HeaderProps) {
   useEffect(() => {
     setSeenAtState(getSeenAt());
     fetchData();
-    const interval = setInterval(fetchData, 15000);
-    return () => clearInterval(interval);
+
+    // 탭 활성 시 5초, 비활성 시 60초 간격으로 폴링
+    let interval: ReturnType<typeof setInterval>;
+
+    function startPolling() {
+      clearInterval(interval);
+      const delay = document.hidden ? 60000 : 5000;
+      interval = setInterval(fetchData, delay);
+    }
+
+    startPolling();
+
+    function handleVisibility() {
+      if (!document.hidden) fetchData(); // 탭 복귀 시 즉시 fetch
+      startPolling();
+    }
+
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
   }, [fetchData]);
 
   const unreadMentions = mentions.filter((m) => !m.read).length;

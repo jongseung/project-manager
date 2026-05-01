@@ -4,15 +4,16 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { success, failure, type ActionResult } from "@/lib/action-utils";
 import { getCurrentOrgId } from "@/lib/session";
+import { TASK_STATUSES } from "@/lib/constants";
 
 export async function importData(jsonString: string): Promise<ActionResult<{ imported: number }>> {
   const orgId = await getCurrentOrgId();
-  if (!orgId) return failure("Unauthorized");
+  if (!orgId) return failure("인증이 필요합니다");
 
   try {
     const parsed = JSON.parse(jsonString);
     if (!parsed.data || !parsed.version) {
-      return failure("Invalid backup format. Missing 'data' or 'version' field.");
+      return failure("잘못된 백업 형식입니다. data 또는 version 필드가 없습니다.");
     }
 
     const { data } = parsed;
@@ -106,8 +107,11 @@ export async function bulkUpdateTaskStatus(
   status: string
 ): Promise<ActionResult<{ updated: number }>> {
   const orgId = await getCurrentOrgId();
-  if (!orgId) return failure("Unauthorized");
+  if (!orgId) return failure("인증이 필요합니다");
   if (taskIds.length === 0) return success({ updated: 0 });
+  if (!(TASK_STATUSES as readonly string[]).includes(status)) {
+    return failure(`유효하지 않은 상태입니다: ${status}`);
+  }
 
   try {
     const result = await db.task.updateMany({
@@ -125,6 +129,6 @@ export async function bulkUpdateTaskStatus(
     return success({ updated: result.count });
   } catch (e) {
     console.error(e);
-    return failure("Failed to update tasks");
+    return failure("태스크 수정에 실패했습니다");
   }
 }

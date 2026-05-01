@@ -17,6 +17,9 @@ interface ProjectHeaderProps {
   projectName: string;
   projectColor?: string;
   workspaceName?: string;
+  taskCount?: number;
+  epicCount?: number;
+  storyCount?: number;
 }
 
 const VIEWS = [
@@ -31,7 +34,7 @@ const VIEWS = [
   { label: "리포트", path: "reports" },
 ] as const;
 
-export function ProjectHeader({ projectId, projectName, projectColor, workspaceName }: ProjectHeaderProps) {
+export function ProjectHeader({ projectId, projectName, projectColor, workspaceName, taskCount, epicCount, storyCount }: ProjectHeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -100,7 +103,7 @@ export function ProjectHeader({ projectId, projectName, projectColor, workspaceN
         open={confirmOpen}
         onOpenChange={setConfirmOpen}
         title={`"${projectName}" 프로젝트를 삭제할까요?`}
-        description="이 프로젝트와 하위 태스크, 스토리, 에픽이 휴지통으로 이동됩니다. 30일 내 복원 가능합니다."
+        description={`이 프로젝트와 하위 항목이 휴지통으로 이동됩니다.${taskCount || epicCount || storyCount ? ` (태스크 ${taskCount ?? 0}개, 에픽 ${epicCount ?? 0}개, 스토리 ${storyCount ?? 0}개)` : ""} 30일 내 복원 가능합니다.`}
         confirmLabel="삭제"
         onConfirm={async () => {
           del(projectId, {

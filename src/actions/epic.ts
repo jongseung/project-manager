@@ -10,7 +10,7 @@ import type { Epic } from "@prisma/client";
 
 export async function createEpic(input: unknown): Promise<ActionResult<Epic>> {
   const parsed = epicSchema.safeParse(input);
-  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "Invalid input");
+  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "잘못된 입력입니다");
   if (!(await userOwnsProject(parsed.data.projectId))) return failure("프로젝트에 접근 권한이 없습니다");
 
   try {
@@ -26,13 +26,13 @@ export async function createEpic(input: unknown): Promise<ActionResult<Epic>> {
     return success(epic);
   } catch (e) {
     console.error(e);
-    return failure("Failed to create epic");
+    return failure("에픽 생성에 실패했습니다");
   }
 }
 
 export async function updateEpic(id: string, input: unknown): Promise<ActionResult<Epic>> {
   const parsed = epicSchema.partial().safeParse(input);
-  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "Invalid input");
+  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "잘못된 입력입니다");
   if (!(await userOwnsEpic(id))) return failure("에픽에 접근 권한이 없습니다");
 
   try {
@@ -42,7 +42,7 @@ export async function updateEpic(id: string, input: unknown): Promise<ActionResu
     return success(epic);
   } catch (e) {
     console.error(e);
-    return failure("Failed to update epic");
+    return failure("에픽 수정에 실패했습니다");
   }
 }
 
@@ -55,7 +55,7 @@ export async function deleteEpic(id: string): Promise<ActionResult<void>> {
     return success(undefined);
   } catch (e) {
     console.error(e);
-    return failure("Failed to delete epic");
+    return failure("에픽 삭제에 실패했습니다");
   }
 }
 
@@ -67,7 +67,7 @@ export async function restoreEpic(id: string): Promise<ActionResult<void>> {
     return success(undefined);
   } catch (e) {
     console.error(e);
-    return failure("Failed to restore epic");
+    return failure("에픽 복원에 실패했습니다");
   }
 }
 

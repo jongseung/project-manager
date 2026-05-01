@@ -8,27 +8,28 @@ import { KPIOverview } from "@/components/dashboard/kpi-overview";
 import { ActiveSprints } from "@/components/dashboard/active-sprints";
 import { MemberWorkload } from "@/components/dashboard/member-workload";
 import { db } from "@/lib/db";
-import { getCurrentOrganization } from "@/lib/session";
+import { requireOrganization } from "@/lib/session";
 import { format, subDays, startOfWeek } from "date-fns";
 
 export default async function DashboardPage() {
-  const ctx = await getCurrentOrganization();
-  const orgId = ctx?.organization.id;
+  const ctx = await requireOrganization();
+  const orgId = ctx.organization.id;
+  const orgFilter = { project: { workspace: { organizationId: orgId } } };
 
   const today = new Date();
   const todayStr = format(today, "yyyy-MM-dd");
 
   // Use count/groupBy instead of loading all records
   const [totalTasks, completedTasks, overdueTasks, activeProjects] = await Promise.all([
-    db.task.count({ where: { archivedAt: null } }),
-    db.task.count({ where: { archivedAt: null, status: "done" } }),
-    db.task.count({ where: { archivedAt: null, dueDate: { lt: todayStr }, status: { not: "done" } } }),
-    db.project.count({ where: { status: "active" } }),
+    db.task.count({ where: { archivedAt: null, ...orgFilter } }),
+    db.task.count({ where: { archivedAt: null, status: "done", ...orgFilter } }),
+    db.task.count({ where: { archivedAt: null, dueDate: { lt: todayStr }, status: { not: "done" }, ...orgFilter } }),
+    db.project.count({ where: { status: "active", workspace: { organizationId: orgId } } }),
   ]);
 
   // Project progress - only active projects with task counts
   const projects = await db.project.findMany({
-    where: { status: "active", archivedAt: null },
+    where: { status: "active", archivedAt: null, workspace: { organizationId: orgId } },
     include: {
       _count: { select: { tasks: true } },
       tasks: { where: { archivedAt: null, status: "done" }, select: { id: true } },
@@ -43,7 +44,7 @@ export default async function DashboardPage() {
 
   // Upcoming deadlines - limited query
   const upcoming = await db.task.findMany({
-    where: { dueDate: { gte: todayStr }, status: { not: "done" }, archivedAt: null },
+    where: { dueDate: { gte: todayStr }, status: { not: "done" }, archivedAt: null, ...orgFilter },
     include: { project: { select: { name: true } } },
     orderBy: { dueDate: "asc" },
     take: 10,
@@ -55,7 +56,7 @@ export default async function DashboardPage() {
 
   // Activity heatmap - use groupBy for efficiency
   const activityRaw = await db.activityLog.findMany({
-    where: { occurredAt: { gte: subDays(today, 365) } },
+    where: { occurredAt: { gte: subDays(today, 365) }, organizationId: orgId },
     select: { occurredAt: true },
   });
   const activityMap: Record<string, number> = {};
@@ -66,6 +67,7 @@ export default async function DashboardPage() {
 
   // OKR overview
   const objectivesRaw = await db.objective.findMany({
+    where: { project: { workspace: { organizationId: orgId } } },
     include: {
       project: { select: { id: true, name: true } },
       keyResults: {
@@ -86,7 +88,7 @@ export default async function DashboardPage() {
 
   // Active sprints
   const activeSprints = await db.sprint.findMany({
-    where: { status: "active" },
+    where: { status: "active", project: { workspace: { organizationId: orgId } } },
     include: {
       project: { select: { id: true, name: true } },
       tasks: { include: { task: { select: { status: true } } } },
@@ -101,7 +103,7 @@ export default async function DashboardPage() {
   // Weekly completion trend - single query, group in JS
   const weeklyStart = startOfWeek(subDays(today, 11 * 7));
   const completedTasks12w = await db.task.findMany({
-    where: { completedAt: { gte: weeklyStart } },
+    where: { completedAt: { gte: weeklyStart }, ...orgFilter },
     select: { completedAt: true },
   });
   const weeklyData: { week: string; completed: number }[] = [];
@@ -114,11 +116,11 @@ export default async function DashboardPage() {
 
   // Member workload - single query, group in JS
   const allMembers = await db.member.findMany({
-    where: { isActive: true },
+    where: { isActive: true, workspace: { organizationId: orgId } },
     select: { id: true, name: true, color: true },
   });
   const memberTasks = await db.task.findMany({
-    where: { memberId: { not: null }, archivedAt: null },
+    where: { memberId: { not: null }, archivedAt: null, ...orgFilter },
     select: { memberId: true, status: true, dueDate: true },
   });
   const memberWorkloadData = allMembers.map((m) => {

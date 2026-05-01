@@ -10,7 +10,7 @@ import type { Milestone } from "@prisma/client";
 
 export async function createMilestone(input: unknown): Promise<ActionResult<Milestone>> {
   const parsed = milestoneSchema.safeParse(input);
-  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "Invalid input");
+  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "잘못된 입력입니다");
   if (!(await userOwnsProject(parsed.data.projectId))) return failure("프로젝트에 접근 권한이 없습니다");
 
   try {
@@ -23,13 +23,13 @@ export async function createMilestone(input: unknown): Promise<ActionResult<Mile
     return success(milestone);
   } catch (e) {
     console.error(e);
-    return failure("Failed to create milestone");
+    return failure("마일스톤 생성에 실패했습니다");
   }
 }
 
 export async function updateMilestone(id: string, input: unknown): Promise<ActionResult<Milestone>> {
   const parsed = milestoneSchema.partial().safeParse(input);
-  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "Invalid input");
+  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "잘못된 입력입니다");
   if (!(await userOwnsMilestone(id))) return failure("마일스톤에 접근 권한이 없습니다");
 
   try {
@@ -39,7 +39,7 @@ export async function updateMilestone(id: string, input: unknown): Promise<Actio
     return success(milestone);
   } catch (e) {
     console.error(e);
-    return failure("Failed to update milestone");
+    return failure("마일스톤 수정에 실패했습니다");
   }
 }
 
@@ -51,7 +51,7 @@ export async function deleteMilestone(id: string): Promise<ActionResult<void>> {
     return success(undefined);
   } catch (e) {
     console.error(e);
-    return failure("Failed to delete milestone");
+    return failure("마일스톤 삭제에 실패했습니다");
   }
 }
 
@@ -63,7 +63,7 @@ export async function restoreMilestone(id: string): Promise<ActionResult<void>> 
     return success(undefined);
   } catch (e) {
     console.error(e);
-    return failure("Failed to restore milestone");
+    return failure("마일스톤 복원에 실패했습니다");
   }
 }
 

@@ -4,10 +4,10 @@ import { GoalCard } from "@/components/goal/goal-card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { getGoalsWithProgress } from "@/actions/goal";
 import { GoalActions } from "./goal-actions";
-import { getCurrentOrganization } from "@/lib/session";
+import { requireOrganization } from "@/lib/session";
 
 export default async function GoalsPage() {
-  const ctx = await getCurrentOrganization();
+  const ctx = await requireOrganization();
   const goals = await getGoalsWithProgress();
 
   return (

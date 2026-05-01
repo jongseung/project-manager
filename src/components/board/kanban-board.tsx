@@ -134,7 +134,7 @@ export function KanbanBoard({ tasks: initialTasks, onAddTask, onTaskClick, sprin
 
     const result = await reorderTasks(newOrder);
     if (!result.success) {
-      toast.error("Failed to reorder tasks");
+      toast.error("태스크 정렬에 실패했습니다");
     }
   }
 

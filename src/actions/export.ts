@@ -1,22 +1,28 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { getCurrentOrgId } from "@/lib/session";
 
 export async function exportData() {
+  const orgId = await getCurrentOrgId();
+  if (!orgId) return { exportedAt: new Date().toISOString(), version: "1.0", data: {} };
+
+  const orgFilter = { workspace: { organizationId: orgId } };
+
   const [workspaces, projects, epics, tasks, labels, goals, kpis, milestones, sprints, members, mindMaps, dailyPlans, standupNotes] = await Promise.all([
-    db.workspace.findMany(),
-    db.project.findMany(),
-    db.epic.findMany(),
-    db.task.findMany(),
-    db.label.findMany(),
-    db.goal.findMany(),
-    db.kPI.findMany({ include: { entries: true } }),
-    db.milestone.findMany(),
-    db.sprint.findMany({ include: { tasks: true } }),
-    db.member.findMany(),
-    db.mindMap.findMany({ include: { nodes: true } }),
-    db.dailyPlan.findMany({ include: { tasks: true } }),
-    db.standupNote.findMany(),
+    db.workspace.findMany({ where: { organizationId: orgId } }),
+    db.project.findMany({ where: orgFilter }),
+    db.epic.findMany({ where: { project: orgFilter } }),
+    db.task.findMany({ where: { project: orgFilter } }),
+    db.label.findMany({ where: { workspace: { organizationId: orgId } } }),
+    db.goal.findMany({ where: { workspace: { organizationId: orgId } } }),
+    db.kPI.findMany({ where: { OR: [{ project: orgFilter }, { goal: { workspace: { organizationId: orgId } } }] }, include: { entries: true } }),
+    db.milestone.findMany({ where: { project: orgFilter } }),
+    db.sprint.findMany({ where: { project: orgFilter }, include: { tasks: true } }),
+    db.member.findMany({ where: { workspace: { organizationId: orgId } } }),
+    db.mindMap.findMany({ where: { OR: [{ project: orgFilter }, { projectId: null }] }, include: { nodes: true } }),
+    db.dailyPlan.findMany({ where: { organizationId: orgId }, include: { tasks: true } }),
+    db.standupNote.findMany({ where: { organizationId: orgId } }),
   ]);
 
   return {
@@ -27,7 +33,11 @@ export async function exportData() {
 }
 
 export async function exportCSV() {
+  const orgId = await getCurrentOrgId();
+  if (!orgId) return "";
+
   const tasks = await db.task.findMany({
+    where: { project: { workspace: { organizationId: orgId } } },
     include: { project: { select: { name: true } }, member: { select: { name: true } } },
     orderBy: { createdAt: "desc" },
   });

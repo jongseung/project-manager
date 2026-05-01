@@ -30,10 +30,10 @@ export async function GET(req: Request) {
         const projectId = searchParams.get("projectId");
         const status = searchParams.get("status");
         const limit = parseInt(searchParams.get("limit") ?? "50");
-        if (!projectId) return NextResponse.json({ error: "projectId required" }, { status: 400 });
+        if (!projectId) return NextResponse.json({ error: "projectId가 필요합니다" }, { status: 400 });
 
         const proj = await db.project.findFirst({ where: { id: projectId, ...orgScope }, select: { id: true } });
-        if (!proj) return NextResponse.json({ error: "Project not found" }, { status: 404 });
+        if (!proj) return NextResponse.json({ error: "프로젝트를 찾을 수 없습니다" }, { status: 404 });
 
         const where: Record<string, unknown> = { projectId, parentTaskId: null, archivedAt: null };
         if (status) where.status = status;
@@ -55,7 +55,7 @@ export async function GET(req: Request) {
 
       case "task": {
         const id = searchParams.get("id");
-        if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
+        if (!id) return NextResponse.json({ error: "id가 필요합니다" }, { status: 400 });
 
         const task = await db.task.findFirst({
           where: { id, ...taskOrgScope },
@@ -67,15 +67,15 @@ export async function GET(req: Request) {
             story: { select: { title: true } },
           },
         });
-        if (!task) return NextResponse.json({ error: "Task not found" }, { status: 404 });
+        if (!task) return NextResponse.json({ error: "태스크를 찾을 수 없습니다" }, { status: 404 });
         return NextResponse.json(task);
       }
 
       case "backlog": {
         const projectId = searchParams.get("projectId");
-        if (!projectId) return NextResponse.json({ error: "projectId required" }, { status: 400 });
+        if (!projectId) return NextResponse.json({ error: "projectId가 필요합니다" }, { status: 400 });
         const proj = await db.project.findFirst({ where: { id: projectId, ...orgScope }, select: { id: true } });
-        if (!proj) return NextResponse.json({ error: "Project not found" }, { status: 404 });
+        if (!proj) return NextResponse.json({ error: "프로젝트를 찾을 수 없습니다" }, { status: 404 });
 
         const tasks = await db.task.findMany({
           where: { projectId, parentTaskId: null, archivedAt: null, status: { in: ["backlog", "todo"] } },
@@ -88,9 +88,9 @@ export async function GET(req: Request) {
 
       case "history": {
         const projectId = searchParams.get("projectId");
-        if (!projectId) return NextResponse.json({ error: "projectId required" }, { status: 400 });
+        if (!projectId) return NextResponse.json({ error: "projectId가 필요합니다" }, { status: 400 });
         const proj = await db.project.findFirst({ where: { id: projectId, ...orgScope }, select: { id: true } });
-        if (!proj) return NextResponse.json({ error: "Project not found" }, { status: 404 });
+        if (!proj) return NextResponse.json({ error: "프로젝트를 찾을 수 없습니다" }, { status: 404 });
 
         const tasks = await db.task.findMany({
           where: { projectId, parentTaskId: null, status: "done" },
@@ -103,7 +103,7 @@ export async function GET(req: Request) {
 
       default:
         return NextResponse.json({
-          error: "Unknown action",
+          error: "알 수 없는 액션입니다",
           availableActions: ["projects", "tasks", "task", "backlog", "history"],
           usage: {
             projects: "GET /api/pm?action=projects",
@@ -116,7 +116,7 @@ export async function GET(req: Request) {
     }
   } catch (e) {
     console.error("PM API GET error:", e);
-    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+    return NextResponse.json({ error: "서버 오류가 발생했습니다" }, { status: 500 });
   }
 }
 
@@ -133,10 +133,10 @@ export async function POST(req: Request) {
     switch (action) {
       case "createTask": {
         const { projectId, title, description, status = "todo", priority = "none", dueDate, epicId, storyId } = body;
-        if (!projectId || !title) return NextResponse.json({ error: "projectId and title required" }, { status: 400 });
+        if (!projectId || !title) return NextResponse.json({ error: "projectId와 title이 필요합니다" }, { status: 400 });
 
         const proj = await db.project.findFirst({ where: { id: projectId, ...orgScope }, select: { id: true } });
-        if (!proj) return NextResponse.json({ error: "Project not found" }, { status: 404 });
+        if (!proj) return NextResponse.json({ error: "프로젝트를 찾을 수 없습니다" }, { status: 404 });
 
         const task = await db.task.create({
           data: {
@@ -156,10 +156,10 @@ export async function POST(req: Request) {
 
       case "updateTask": {
         const { id, ...updates } = body;
-        if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
+        if (!id) return NextResponse.json({ error: "id가 필요합니다" }, { status: 400 });
 
         const owned = await db.task.findFirst({ where: { id, ...taskOrgScope }, select: { id: true } });
-        if (!owned) return NextResponse.json({ error: "Task not found" }, { status: 404 });
+        if (!owned) return NextResponse.json({ error: "태스크를 찾을 수 없습니다" }, { status: 404 });
 
         const allowed = ["title", "status", "priority", "description", "dueDate"];
         const data: Record<string, unknown> = {};
@@ -178,10 +178,10 @@ export async function POST(req: Request) {
 
       case "addComment": {
         const { taskId, content, authorName = "Claude Code" } = body;
-        if (!taskId || !content) return NextResponse.json({ error: "taskId and content required" }, { status: 400 });
+        if (!taskId || !content) return NextResponse.json({ error: "taskId와 content가 필요합니다" }, { status: 400 });
 
         const owned = await db.task.findFirst({ where: { id: taskId, ...taskOrgScope }, select: { id: true } });
-        if (!owned) return NextResponse.json({ error: "Task not found" }, { status: 404 });
+        if (!owned) return NextResponse.json({ error: "태스크를 찾을 수 없습니다" }, { status: 404 });
 
         const comment = await db.comment.create({
           data: { taskId, content, authorName },
@@ -192,10 +192,10 @@ export async function POST(req: Request) {
 
       case "workLog": {
         const { taskId, message, status: newStatus } = body;
-        if (!taskId || !message) return NextResponse.json({ error: "taskId and message required" }, { status: 400 });
+        if (!taskId || !message) return NextResponse.json({ error: "taskId와 message가 필요합니다" }, { status: 400 });
 
         const owned = await db.task.findFirst({ where: { id: taskId, ...taskOrgScope }, select: { id: true } });
-        if (!owned) return NextResponse.json({ error: "Task not found" }, { status: 404 });
+        if (!owned) return NextResponse.json({ error: "태스크를 찾을 수 없습니다" }, { status: 404 });
 
         const content = `[작업 로그] ${message}`;
         await db.comment.create({ data: { taskId, content, authorName: "Claude Code" } });
@@ -211,7 +211,7 @@ export async function POST(req: Request) {
 
       default:
         return NextResponse.json({
-          error: "Unknown action",
+          error: "알 수 없는 액션입니다",
           availableActions: ["createTask", "updateTask", "addComment", "workLog"],
           usage: {
             createTask: "POST { action: 'createTask', projectId, title, description?, status?, priority? }",
@@ -223,6 +223,6 @@ export async function POST(req: Request) {
     }
   } catch (e) {
     console.error("PM API POST error:", e);
-    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+    return NextResponse.json({ error: "서버 오류가 발생했습니다" }, { status: 500 });
   }
 }

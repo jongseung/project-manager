@@ -97,8 +97,8 @@ export function SprintDetail({ sprint, allTasks, stories = [] }: SprintDetailPro
           <div className="flex items-center gap-3">
             {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
             <CardTitle className="text-base">{sprint.name}</CardTitle>
-            <Badge className={config.badge} variant="secondary">{sprint.status}</Badge>
-            {isOverdue && <Badge variant="destructive" className="text-xs">Overdue</Badge>}
+            <Badge className={config.badge} variant="secondary">{config.label}</Badge>
+            {isOverdue && <Badge variant="destructive" className="text-xs">지연</Badge>}
           </div>
           <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
             <Select value={sprint.status} onValueChange={changeStatus}>
@@ -110,7 +110,7 @@ export function SprintDetail({ sprint, allTasks, stories = [] }: SprintDetailPro
               </SelectContent>
             </Select>
             <Button size="sm" variant="outline" onClick={() => setPickerOpen(true)}>
-              <Plus className="h-3.5 w-3.5 mr-1" /> Add Task
+              <Plus className="h-3.5 w-3.5 mr-1" /> 태스크 추가
             </Button>
           </div>
         </div>
@@ -120,7 +120,7 @@ export function SprintDetail({ sprint, allTasks, stories = [] }: SprintDetailPro
           <div className="flex items-start gap-2 mt-2 bg-primary/5 rounded-md px-3 py-2">
             <Target className="h-3.5 w-3.5 mt-0.5 text-primary shrink-0" />
             <div>
-              <p className="text-xs font-medium text-primary">Sprint Goal</p>
+              <p className="text-xs font-medium text-primary">스프린트 목표</p>
               <p className="text-xs text-muted-foreground mt-0.5">{sprint.goalDescription}</p>
             </div>
           </div>
@@ -133,25 +133,25 @@ export function SprintDetail({ sprint, allTasks, stories = [] }: SprintDetailPro
             {formatDate(sprint.startDate)} — {formatDate(sprint.endDate)}
           </span>
           <span className={cn("font-medium", isOverdue ? "text-red-500" : daysLeft <= 3 && sprint.status === "active" ? "text-yellow-600" : "")}>
-            {sprint.status === "completed" ? "Completed" : isOverdue ? "Overdue" : `${daysLeft}d left`}
+            {sprint.status === "completed" ? "완료됨" : isOverdue ? "지연" : `${daysLeft}일 남음`}
           </span>
           <span className="flex items-center gap-1">
             <Flame className="h-3 w-3" />
-            {completed}/{total} done · {inProgress} active
+            {completed}/{total} 완료 · {inProgress} 진행 중
           </span>
         </div>
 
         {/* Dual progress bars */}
         <div className="space-y-1.5 mt-2">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] w-10 text-muted-foreground">Tasks</span>
+            <span className="text-[10px] w-10 text-muted-foreground">태스크</span>
             <div className="h-2 flex-1 rounded-full bg-muted overflow-hidden">
               <div className="h-full bg-green-500 rounded-full transition-all" style={{ width: `${progress}%` }} />
             </div>
             <span className="text-[10px] w-8 text-right font-medium">{progress}%</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] w-10 text-muted-foreground">Time</span>
+            <span className="text-[10px] w-10 text-muted-foreground">기간</span>
             <div className="h-2 flex-1 rounded-full bg-muted overflow-hidden">
               <div className={cn("h-full rounded-full transition-all", daysPct > progress + 20 ? "bg-red-400" : "bg-blue-400")} style={{ width: `${daysPct}%` }} />
             </div>
@@ -184,12 +184,12 @@ export function SprintDetail({ sprint, allTasks, stories = [] }: SprintDetailPro
                     {key !== "__none" && (
                       <div className="flex items-center gap-1.5 mb-1 px-1">
                         <BookOpen className="h-3 w-3 text-primary" />
-                        <span className="text-xs font-medium">{storyMap.get(key) ?? "Story"}</span>
-                        <span className="text-[10px] text-muted-foreground">({groupDone}/{tasks.length} done)</span>
+                        <span className="text-xs font-medium">{storyMap.get(key) ?? "스토리"}</span>
+                        <span className="text-[10px] text-muted-foreground">({groupDone}/{tasks.length} 완료)</span>
                       </div>
                     )}
                     {key === "__none" && grouped.size > 1 && (
-                      <div className="text-xs font-medium text-muted-foreground mb-1 px-1">Other Tasks</div>
+                      <div className="text-xs font-medium text-muted-foreground mb-1 px-1">기타 태스크</div>
                     )}
                     <div className="space-y-0.5">
                       {tasks.map((task) => (

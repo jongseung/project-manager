@@ -160,7 +160,7 @@ export async function saveStandupNote(
   }
 ): Promise<ActionResult<StandupNote>> {
   const orgId = await getCurrentOrgId();
-  if (!orgId) return failure("Unauthorized");
+  if (!orgId) return failure("인증이 필요합니다");
   try {
     const note = await db.standupNote.upsert({
       where: { organizationId_date: { organizationId: orgId, date } },
@@ -180,7 +180,7 @@ export async function toggleMeetingTimer(
   action: "start" | "end"
 ): Promise<ActionResult<StandupNote>> {
   const orgId = await getCurrentOrgId();
-  if (!orgId) return failure("Unauthorized");
+  if (!orgId) return failure("인증이 필요합니다");
   try {
     const field = action === "start" ? "meetingStartedAt" : "meetingEndedAt";
     const note = await db.standupNote.upsert({

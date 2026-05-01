@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const workspaceSchema = z.object({
-  name: z.string().min(1, "Name is required").max(100),
+  name: z.string().min(1, "이름을 입력해주세요").max(100),
   description: z.string().max(500).optional(),
   color: z.string().default("#6366f1"),
   icon: z.string().optional(),
@@ -9,7 +9,7 @@ export const workspaceSchema = z.object({
 
 export const projectSchema = z.object({
   workspaceId: z.string().min(1),
-  name: z.string().min(1, "Name is required").max(100),
+  name: z.string().min(1, "이름을 입력해주세요").max(100),
   description: z.string().max(1000).optional(),
   status: z.enum(["active", "paused", "completed", "archived"]).default("active"),
   color: z.string().default("#6366f1"),
@@ -26,7 +26,7 @@ export const taskSchema = z.object({
   parentTaskId: z.string().optional().nullable(),
   memberId: z.string().optional().nullable(),
   storyId: z.string().optional().nullable(),
-  title: z.string().min(1, "Title is required").max(200),
+  title: z.string().min(1, "제목을 입력해주세요").max(200),
   description: z.string().max(5000).optional(),
   status: z.enum(["backlog", "todo", "in_progress", "in_review", "done", "cancelled"]).default("todo"),
   priority: z.enum(["urgent", "high", "medium", "low", "none"]).default("none"),
@@ -43,7 +43,7 @@ export const taskUpdateSchema = taskSchema.partial().extend({
 
 export const epicSchema = z.object({
   projectId: z.string().min(1),
-  name: z.string().min(1, "Name is required").max(100),
+  name: z.string().min(1, "이름을 입력해주세요").max(100),
   description: z.string().max(1000).optional(),
   status: z.enum(["todo", "in_progress", "done"]).default("todo"),
   priority: z.enum(["urgent", "high", "medium", "low"]).default("medium"),
@@ -53,7 +53,7 @@ export const epicSchema = z.object({
 
 export const labelSchema = z.object({
   workspaceId: z.string().min(1),
-  name: z.string().min(1, "Name is required").max(50),
+  name: z.string().min(1, "이름을 입력해주세요").max(50),
   color: z.string().default("#6366f1"),
 });
 
@@ -64,7 +64,7 @@ export const dailyPlanTaskSchema = z.object({
 
 export const goalSchema = z.object({
   workspaceId: z.string().min(1),
-  title: z.string().min(1, "Title is required").max(200),
+  title: z.string().min(1, "제목을 입력해주세요").max(200),
   description: z.string().max(1000).optional(),
   status: z.enum(["not_started", "in_progress", "achieved", "missed", "abandoned"]).default("not_started"),
   startDate: z.string().optional().nullable(),
@@ -74,17 +74,17 @@ export const goalSchema = z.object({
 export const kpiSchema = z.object({
   goalId: z.string().optional().nullable(),
   projectId: z.string().optional().nullable(),
-  name: z.string().min(1, "Name is required"),
+  name: z.string().min(1, "이름을 입력해주세요"),
   description: z.string().optional(),
   unit: z.string().default("%"),
-  targetValue: z.number().positive("Target must be positive"),
+  targetValue: z.number().positive("목표값은 양수여야 합니다"),
   currentValue: z.number().default(0),
   direction: z.enum(["increase", "decrease"]).default("increase"),
 });
 
 export const sprintSchema = z.object({
   projectId: z.string().min(1),
-  name: z.string().min(1, "Name is required"),
+  name: z.string().min(1, "이름을 입력해주세요"),
   startDate: z.string().min(1),
   endDate: z.string().min(1),
   status: z.enum(["planning", "active", "completed"]).default("planning"),
@@ -93,9 +93,9 @@ export const sprintSchema = z.object({
 
 export const milestoneSchema = z.object({
   projectId: z.string().min(1),
-  name: z.string().min(1, "Name is required"),
+  name: z.string().min(1, "이름을 입력해주세요"),
   description: z.string().optional().nullable(),
-  targetDate: z.string().min(1, "Target date is required"),
+  targetDate: z.string().min(1, "목표일을 입력해주세요"),
   status: z.enum(["pending", "reached", "missed"]).default("pending"),
 });
 
@@ -106,7 +106,7 @@ export const dependencySchema = z.object({
 });
 
 export const mindMapSchema = z.object({
-  title: z.string().min(1, "Title is required"),
+  title: z.string().min(1, "제목을 입력해주세요"),
   description: z.string().optional(),
   projectId: z.string().optional().nullable(),
 });
@@ -122,7 +122,7 @@ export const mindMapNodeSchema = z.object({
 
 export const memberSchema = z.object({
   workspaceId: z.string().min(1, "워크스페이스를 선택해 주세요"),
-  name: z.string().min(1, "Name is required"),
+  name: z.string().min(1, "이름을 입력해주세요"),
   role: z.string().optional(),
   email: z.string().email().optional().or(z.literal("")),
   color: z.string().default("#6366f1"),
@@ -139,7 +139,7 @@ export const taskTemplateSchema = z.object({
 // Phase 1.6: Recurring Templates
 export const recurringTemplateSchema = z.object({
   workspaceId: z.string().min(1),
-  title: z.string().min(1, "Title is required").max(200),
+  title: z.string().min(1, "제목을 입력해주세요").max(200),
   description: z.string().max(2000).optional(),
   priority: z.enum(["urgent", "high", "medium", "low"]).default("medium"),
   frequency: z.enum(["daily", "weekly", "biweekly", "monthly", "quarterly", "yearly", "custom"]).default("daily"),
@@ -161,14 +161,14 @@ export const recurringTemplateUpdateSchema = recurringTemplateSchema.partial().e
 // Phase 2.5: Story & OKR
 export const objectiveSchema = z.object({
   projectId: z.string().min(1),
-  title: z.string().min(1, "Title is required").max(200),
+  title: z.string().min(1, "제목을 입력해주세요").max(200),
   description: z.string().max(2000).optional(),
   status: z.enum(["not_started", "in_progress", "achieved", "missed"]).default("not_started"),
 });
 
 export const keyResultSchema = z.object({
   objectiveId: z.string().min(1),
-  title: z.string().min(1, "Title is required").max(200),
+  title: z.string().min(1, "제목을 입력해주세요").max(200),
   metricName: z.string().optional().nullable(),
   unit: z.string().default("%"),
   startValue: z.number().default(0),
@@ -181,7 +181,7 @@ export const keyResultSchema = z.object({
 export const storySchema = z.object({
   projectId: z.string().min(1),
   epicId: z.string().optional().nullable(),
-  title: z.string().min(1, "Title is required").max(200),
+  title: z.string().min(1, "제목을 입력해주세요").max(200),
   description: z.string().max(5000).optional(),
   userStory: z.string().max(500).optional().nullable(),
   storyPoints: z.number().int().positive().optional().nullable(),
@@ -193,7 +193,7 @@ export const commentSchema = z.object({
   taskId: z.string().optional().nullable(),
   workspaceId: z.string().optional().nullable(),
   parentCommentId: z.string().optional().nullable(),
-  content: z.string().min(1, "Content is required"),
+  content: z.string().min(1, "내용을 입력해주세요"),
   authorName: z.string().default("User"),
   mentions: z.string().optional().nullable(),
 });

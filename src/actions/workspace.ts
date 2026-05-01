@@ -12,7 +12,7 @@ export async function createWorkspace(
 ): Promise<ActionResult<Workspace>> {
   const parsed = workspaceSchema.safeParse(input);
   if (!parsed.success) {
-    return failure(parsed.error.errors[0]?.message ?? "Invalid input");
+    return failure(parsed.error.errors[0]?.message ?? "잘못된 입력입니다");
   }
 
   const orgId = await getCurrentOrgId();
@@ -26,7 +26,7 @@ export async function createWorkspace(
     return success(workspace);
   } catch (e) {
     console.error(e);
-    return failure("Failed to create workspace");
+    return failure("워크스페이스 생성에 실패했습니다");
   }
 }
 
@@ -36,7 +36,7 @@ export async function updateWorkspace(
 ): Promise<ActionResult<Workspace>> {
   const parsed = workspaceSchema.partial().safeParse(input);
   if (!parsed.success) {
-    return failure(parsed.error.errors[0]?.message ?? "Invalid input");
+    return failure(parsed.error.errors[0]?.message ?? "잘못된 입력입니다");
   }
 
   if (!(await userOwnsWorkspace(id))) {
@@ -52,7 +52,7 @@ export async function updateWorkspace(
     return success(workspace);
   } catch (e) {
     console.error(e);
-    return failure("Failed to update workspace");
+    return failure("워크스페이스 수정에 실패했습니다");
   }
 }
 
@@ -72,7 +72,7 @@ export async function deleteWorkspace(
     return success(undefined);
   } catch (e) {
     console.error(e);
-    return failure("Failed to delete workspace");
+    return failure("워크스페이스 삭제에 실패했습니다");
   }
 }
 
@@ -84,7 +84,7 @@ export async function restoreWorkspace(id: string): Promise<ActionResult<void>> 
     return success(undefined);
   } catch (e) {
     console.error(e);
-    return failure("Failed to restore workspace");
+    return failure("워크스페이스 복원에 실패했습니다");
   }
 }
 

@@ -3,6 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { db } from "@/lib/db";
 import bcrypt from "bcryptjs";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(db),
@@ -19,6 +20,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
+
+        const rl = checkRateLimit(`login:${credentials.email}`);
+        if (!rl.allowed) return null;
 
         const user = await db.user.findUnique({
           where: { email: credentials.email as string },

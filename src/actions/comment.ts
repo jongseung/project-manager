@@ -9,7 +9,7 @@ import type { Comment } from "@prisma/client";
 
 export async function createComment(input: unknown): Promise<ActionResult<Comment>> {
   const parsed = commentSchema.safeParse(input);
-  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "Invalid input");
+  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "잘못된 입력입니다");
 
   // Ownership: must own either the target task OR the workspace-level comment thread
   if (parsed.data.taskId) {
@@ -60,7 +60,7 @@ export async function createComment(input: unknown): Promise<ActionResult<Commen
     return success(comment);
   } catch (e) {
     console.error(e);
-    return failure("Failed to create comment");
+    return failure("댓글 생성에 실패했습니다");
   }
 }
 
@@ -91,7 +91,7 @@ export async function deleteComment(id: string): Promise<ActionResult<void>> {
     return success(undefined);
   } catch (e) {
     console.error(e);
-    return failure("Failed to delete comment");
+    return failure("댓글 삭제에 실패했습니다");
   }
 }
 

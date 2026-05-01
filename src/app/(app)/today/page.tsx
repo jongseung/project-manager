@@ -7,10 +7,10 @@ import { QuickAdd } from "@/components/today/quick-add";
 import { TodayTaskList } from "@/components/today/today-task-list";
 import { EmptyState } from "@/components/shared/empty-state";
 import { db } from "@/lib/db";
-import { getCurrentOrganization } from "@/lib/session";
+import { requireOrganization } from "@/lib/session";
 
 export default async function TodayPage() {
-  const ctx = await getCurrentOrganization();
+  const ctx = await requireOrganization();
   const today = format(new Date(), "yyyy-MM-dd");
   const tomorrow = format(addDays(new Date(), 1), "yyyy-MM-dd");
 

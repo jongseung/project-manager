@@ -10,7 +10,7 @@ import type { Goal } from "@prisma/client";
 
 export async function createGoal(input: unknown): Promise<ActionResult<Goal>> {
   const parsed = goalSchema.safeParse(input);
-  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "Invalid input");
+  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "잘못된 입력입니다");
   if (!(await userOwnsWorkspace(parsed.data.workspaceId))) {
     return failure("워크스페이스에 접근 권한이 없습니다");
   }
@@ -21,13 +21,13 @@ export async function createGoal(input: unknown): Promise<ActionResult<Goal>> {
     return success(goal);
   } catch (e) {
     console.error(e);
-    return failure("Failed to create goal");
+    return failure("목표 생성에 실패했습니다");
   }
 }
 
 export async function updateGoal(id: string, input: unknown): Promise<ActionResult<Goal>> {
   const parsed = goalSchema.partial().safeParse(input);
-  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "Invalid input");
+  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "잘못된 입력입니다");
   if (!(await userOwnsGoal(id))) return failure("목표에 접근 권한이 없습니다");
   try {
     const goal = await db.goal.update({ where: { id }, data: parsed.data });
@@ -36,7 +36,7 @@ export async function updateGoal(id: string, input: unknown): Promise<ActionResu
     return success(goal);
   } catch (e) {
     console.error(e);
-    return failure("Failed to update goal");
+    return failure("목표 수정에 실패했습니다");
   }
 }
 
@@ -52,7 +52,7 @@ export async function deleteGoal(id: string): Promise<ActionResult<void>> {
     return success(undefined);
   } catch (e) {
     console.error(e);
-    return failure("Failed to delete goal");
+    return failure("목표 삭제에 실패했습니다");
   }
 }
 
@@ -64,7 +64,7 @@ export async function restoreGoal(id: string): Promise<ActionResult<void>> {
     return success(undefined);
   } catch (e) {
     console.error(e);
-    return failure("Failed to restore goal");
+    return failure("목표 복원에 실패했습니다");
   }
 }
 
@@ -91,7 +91,7 @@ export async function linkProjectToGoal(goalId: string, projectId: string): Prom
     return success(undefined);
   } catch (e) {
     console.error(e);
-    return failure("Failed to link project");
+    return failure("프로젝트 연결에 실패했습니다");
   }
 }
 
@@ -103,7 +103,7 @@ export async function unlinkProjectFromGoal(goalId: string, projectId: string): 
     return success(undefined);
   } catch (e) {
     console.error(e);
-    return failure("Failed to unlink project");
+    return failure("프로젝트 연결 해제에 실패했습니다");
   }
 }
 

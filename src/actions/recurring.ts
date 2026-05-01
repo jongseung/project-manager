@@ -14,7 +14,7 @@ export async function createRecurringTemplate(
 ): Promise<ActionResult<RecurringTemplate>> {
   const parsed = recurringTemplateSchema.safeParse(input);
   if (!parsed.success) {
-    return failure(parsed.error.errors[0]?.message ?? "Invalid input");
+    return failure(parsed.error.errors[0]?.message ?? "잘못된 입력입니다");
   }
 
   const { subtasks, daysOfWeek, labelIds, ...data } = parsed.data;
@@ -48,7 +48,7 @@ export async function createRecurringTemplate(
     return success(template);
   } catch (e) {
     console.error(e);
-    return failure("Failed to create recurring template");
+    return failure("반복 템플릿 생성에 실패했습니다");
   }
 }
 
@@ -57,7 +57,7 @@ export async function updateRecurringTemplate(
 ): Promise<ActionResult<RecurringTemplate>> {
   const parsed = recurringTemplateUpdateSchema.safeParse(input);
   if (!parsed.success) {
-    return failure(parsed.error.errors[0]?.message ?? "Invalid input");
+    return failure(parsed.error.errors[0]?.message ?? "잘못된 입력입니다");
   }
 
   const { id, subtasks, daysOfWeek, labelIds, ...data } = parsed.data;
@@ -97,7 +97,7 @@ export async function updateRecurringTemplate(
     return success(template);
   } catch (e) {
     console.error(e);
-    return failure("Failed to update recurring template");
+    return failure("반복 템플릿 수정에 실패했습니다");
   }
 }
 
@@ -111,7 +111,7 @@ export async function deleteRecurringTemplate(
     return success(undefined);
   } catch (e) {
     console.error(e);
-    return failure("Failed to delete recurring template");
+    return failure("반복 템플릿 삭제에 실패했습니다");
   }
 }
 
@@ -129,7 +129,7 @@ export async function toggleRecurringTemplate(
     return success(template);
   } catch (e) {
     console.error(e);
-    return failure("Failed to toggle recurring template");
+    return failure("반복 템플릿 전환에 실패했습니다");
   }
 }
 
@@ -199,7 +199,7 @@ async function runRecurringTemplate(id: string): Promise<ActionResult<{ taskId: 
     return success({ taskId: task.id });
   } catch (e) {
     console.error(e);
-    return failure("Failed to trigger recurring template");
+    return failure("반복 템플릿 실행에 실패했습니다");
   }
 }
 

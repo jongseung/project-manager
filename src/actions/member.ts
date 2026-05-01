@@ -9,7 +9,7 @@ import type { Member } from "@prisma/client";
 
 export async function createMember(input: unknown): Promise<ActionResult<Member>> {
   const parsed = memberSchema.safeParse(input);
-  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "Invalid input");
+  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "잘못된 입력입니다");
   if (!(await userOwnsWorkspace(parsed.data.workspaceId))) {
     return failure("워크스페이스에 접근 권한이 없습니다");
   }
@@ -21,35 +21,43 @@ export async function createMember(input: unknown): Promise<ActionResult<Member>
     return success(member);
   } catch (e) {
     console.error(e);
-    return failure("Failed to create member");
+    return failure("멤버 생성에 실패했습니다");
   }
 }
 
 export async function updateMember(id: string, input: unknown): Promise<ActionResult<Member>> {
   const parsed = memberSchema.partial().safeParse(input);
-  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "Invalid input");
+  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "잘못된 입력입니다");
   const orgId = await getCurrentOrgId();
-  if (!orgId) return failure("Unauthorized");
+  if (!orgId) return failure("인증이 필요합니다");
+  const existing = await db.member.findUnique({ where: { id }, select: { workspaceId: true } });
+  if (!existing || !existing.workspaceId || !(await userOwnsWorkspace(existing.workspaceId))) {
+    return failure("권한이 없습니다");
+  }
   try {
     const member = await db.member.update({ where: { id }, data: parsed.data });
     revalidatePath("/", "layout");
     return success(member);
   } catch (e) {
     console.error(e);
-    return failure("Failed to update member");
+    return failure("멤버 수정에 실패했습니다");
   }
 }
 
 export async function deleteMember(id: string): Promise<ActionResult<void>> {
   const orgId = await getCurrentOrgId();
-  if (!orgId) return failure("Unauthorized");
+  if (!orgId) return failure("인증이 필요합니다");
+  const existing = await db.member.findUnique({ where: { id }, select: { workspaceId: true } });
+  if (!existing || !existing.workspaceId || !(await userOwnsWorkspace(existing.workspaceId))) {
+    return failure("권한이 없습니다");
+  }
   try {
     await db.member.delete({ where: { id } });
     revalidatePath("/", "layout");
     return success(undefined);
   } catch (e) {
     console.error(e);
-    return failure("Failed to delete member");
+    return failure("멤버 삭제에 실패했습니다");
   }
 }
 

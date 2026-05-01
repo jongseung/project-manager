@@ -4,15 +4,32 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { CalendarDays, LayoutDashboard, FolderOpen, Search, Briefcase, Users, Bell, Target, Brain, Settings } from "lucide-react";
+import { CalendarDays, LayoutDashboard, FolderOpen, Search, Briefcase, Users, Bell, Target, Brain, Settings, FileText, Layers } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface SearchResult {
+interface TaskResult {
   id: string;
   title: string;
   projectName: string;
   projectId: string;
   status: string;
+  priority?: string;
+  dueDate?: string | null;
+}
+
+interface ProjectResult {
+  id: string;
+  name: string;
+  status: string;
+  color: string;
+}
+
+interface EpicResult {
+  id: string;
+  name: string;
+  status: string;
+  projectId: string;
+  projectName: string;
 }
 
 const NAV_ITEMS = [
@@ -29,7 +46,9 @@ const NAV_ITEMS = [
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<SearchResult[]>([]);
+  const [taskResults, setTaskResults] = useState<TaskResult[]>([]);
+  const [projectResults, setProjectResults] = useState<ProjectResult[]>([]);
+  const [epicResults, setEpicResults] = useState<EpicResult[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const router = useRouter();
 
@@ -45,12 +64,17 @@ export function CommandPalette() {
   }, []);
 
   const searchTasks = useCallback(async (q: string) => {
-    if (!q.trim()) { setResults([]); return; }
+    if (!q.trim()) { setTaskResults([]); setProjectResults([]); setEpicResults([]); return; }
     try {
       const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
-      if (res.ok) setResults(await res.json());
+      if (res.ok) {
+        const data = await res.json();
+        setTaskResults(data.tasks ?? []);
+        setProjectResults(data.projects ?? []);
+        setEpicResults(data.epics ?? []);
+      }
     } catch {
-      setResults([]);
+      setTaskResults([]); setProjectResults([]); setEpicResults([]);
     }
   }, []);
 
@@ -61,7 +85,9 @@ export function CommandPalette() {
 
   const allItems = [
     ...NAV_ITEMS.map((n) => ({ type: "nav" as const, ...n })),
-    ...results.map((r) => ({ type: "task" as const, ...r })),
+    ...projectResults.map((p) => ({ type: "project" as const, ...p })),
+    ...epicResults.map((e) => ({ type: "epic" as const, ...e })),
+    ...taskResults.map((r) => ({ type: "task" as const, ...r })),
   ].filter((item) => {
     if (!query.trim()) return item.type === "nav";
     if (item.type === "nav") return item.label.toLowerCase().includes(query.toLowerCase());
@@ -73,6 +99,10 @@ export function CommandPalette() {
     if (!item) return;
     if (item.type === "nav") {
       router.push(item.href);
+    } else if (item.type === "project") {
+      router.push(`/projects/${item.id}/board`);
+    } else if (item.type === "epic") {
+      router.push(`/projects/${item.projectId}/board`);
     } else if (item.type === "task") {
       router.push(`/projects/${item.projectId}/board`);
     }
@@ -102,7 +132,7 @@ export function CommandPalette() {
             value={query}
             onChange={(e) => { setQuery(e.target.value); setSelectedIndex(0); }}
             onKeyDown={handleKeyDown}
-            placeholder="태스크 검색 또는 이동..."
+            placeholder="태스크, 프로젝트, 에픽 검색..."
             className="border-0 focus-visible:ring-0 h-11"
             autoFocus
           />
@@ -132,9 +162,25 @@ export function CommandPalette() {
                   <item.icon className="h-4 w-4 text-muted-foreground" />
                   <span>{item.label}</span>
                 </>
+              ) : item.type === "project" ? (
+                <>
+                  <FolderOpen className="h-4 w-4 text-muted-foreground" />
+                  <div className="flex-1 min-w-0">
+                    <span className="truncate">{item.name}</span>
+                    <span className="ml-2 text-xs text-muted-foreground">프로젝트</span>
+                  </div>
+                </>
+              ) : item.type === "epic" ? (
+                <>
+                  <Layers className="h-4 w-4 text-muted-foreground" />
+                  <div className="flex-1 min-w-0">
+                    <span className="truncate">{item.name}</span>
+                    <span className="ml-2 text-xs text-muted-foreground">{item.projectName}</span>
+                  </div>
+                </>
               ) : (
                 <>
-                  <Briefcase className="h-4 w-4 text-muted-foreground" />
+                  <FileText className="h-4 w-4 text-muted-foreground" />
                   <div className="flex-1 min-w-0">
                     <span className="truncate">{item.title}</span>
                     <span className="ml-2 text-xs text-muted-foreground">{item.projectName}</span>

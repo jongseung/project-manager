@@ -68,13 +68,13 @@ export function StoriesView({ projectId, epics, stories, objectives }: StoriesVi
       <div className="p-6 max-w-full space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">{stories.length} stories</span>
+            <span className="text-sm text-muted-foreground">{stories.length}개 스토리</span>
             {totalPoints > 0 && (
-              <span className="text-sm text-muted-foreground">{donePoints}/{totalPoints} points done</span>
+              <span className="text-sm text-muted-foreground">{donePoints}/{totalPoints} 포인트 완료</span>
             )}
           </div>
           <Button onClick={openCreate} size="sm">
-            <Plus className="h-4 w-4 mr-1" />Story
+            <Plus className="h-4 w-4 mr-1" />스토리
           </Button>
         </div>
 

@@ -24,7 +24,7 @@ export async function addToDailyPlan(
 ): Promise<ActionResult<void>> {
   if (!(await userOwnsTask(taskId))) return failure("태스크에 접근 권한이 없습니다");
   const orgId = await getCurrentOrgId();
-  if (!orgId) return failure("Unauthorized");
+  if (!orgId) return failure("인증이 필요합니다");
   const planDate = date ?? todayDateString();
 
   try {
@@ -52,7 +52,7 @@ export async function addToDailyPlan(
     return success(undefined);
   } catch (e) {
     console.error(e);
-    return failure("Failed to add task to daily plan");
+    return failure("일일 계획에 태스크 추가를 실패했습니다");
   }
 }
 
@@ -62,7 +62,7 @@ export async function removeFromDailyPlan(
 ): Promise<ActionResult<void>> {
   if (!(await userOwnsTask(taskId))) return failure("태스크에 접근 권한이 없습니다");
   const orgId = await getCurrentOrgId();
-  if (!orgId) return failure("Unauthorized");
+  if (!orgId) return failure("인증이 필요합니다");
   const planDate = date ?? todayDateString();
 
   try {
@@ -79,7 +79,7 @@ export async function removeFromDailyPlan(
     return success(undefined);
   } catch (e) {
     console.error(e);
-    return failure("Failed to remove task from daily plan");
+    return failure("일일 계획에서 태스크 제거를 실패했습니다");
   }
 }
 
@@ -131,6 +131,6 @@ export async function quickAddToToday(
     return success(undefined);
   } catch (e) {
     console.error(e);
-    return failure("Failed to create task");
+    return failure("태스크 생성에 실패했습니다");
   }
 }

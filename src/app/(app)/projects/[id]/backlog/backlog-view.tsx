@@ -89,7 +89,7 @@ function TaskRow({ task, sprints, onAssign, onToggle }: {
         <Select onValueChange={(sprintId) => onAssign(task.id, sprintId)}>
           <SelectTrigger className="w-[140px] h-7 text-[10px] shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
             <ArrowRight className="h-3 w-3 mr-1" />
-            <SelectValue placeholder="→ Sprint" />
+            <SelectValue placeholder="→ 스프린트" />
           </SelectTrigger>
           <SelectContent>
             {sprints.map((s) => (
@@ -113,7 +113,7 @@ export function BacklogView({ projectId, tasks, sprints, stories, members }: Bac
 
   const { execute: assign } = useServerAction(
     async (input: { taskId: string; sprintId: string }) => assignTaskToSprint(input.sprintId, input.taskId),
-    { successMessage: "Sprint에 추가됨" }
+    { successMessage: "스프린트에 추가됨" }
   );
 
   const { execute: toggle } = useServerAction(
@@ -140,12 +140,12 @@ export function BacklogView({ projectId, tasks, sprints, stories, members }: Bac
         {/* Summary */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4 text-sm">
-            <span className="font-medium">{tasks.length} total tasks</span>
-            <span className="text-muted-foreground">{notInSprint.length} in backlog</span>
-            <span className="text-muted-foreground">{inActiveSprint.length} in active sprint</span>
+            <span className="font-medium">전체 {tasks.length}건</span>
+            <span className="text-muted-foreground">백로그 {notInSprint.length}건</span>
+            <span className="text-muted-foreground">진행 스프린트 {inActiveSprint.length}건</span>
           </div>
           <Button size="sm" onClick={() => setCreateOpen(true)}>
-            <Plus className="h-4 w-4 mr-1" /> New Task
+            <Plus className="h-4 w-4 mr-1" /> 새 태스크
           </Button>
         </div>
 
@@ -157,8 +157,8 @@ export function BacklogView({ projectId, tasks, sprints, stories, members }: Bac
           <Select value={filterSprint} onValueChange={setFilterSprint}>
             <SelectTrigger className="w-[150px] h-8 text-xs"><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="none">Backlog only</SelectItem>
-              <SelectItem value="all">All tasks</SelectItem>
+              <SelectItem value="none">백로그만</SelectItem>
+              <SelectItem value="all">전체 태스크</SelectItem>
               {sprints.map((s) => (
                 <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
               ))}
@@ -167,9 +167,9 @@ export function BacklogView({ projectId, tasks, sprints, stories, members }: Bac
 
           {stories.length > 0 && (
             <Select value={filterStory} onValueChange={setFilterStory}>
-              <SelectTrigger className="w-[150px] h-8 text-xs"><SelectValue placeholder="Story" /></SelectTrigger>
+              <SelectTrigger className="w-[150px] h-8 text-xs"><SelectValue placeholder="스토리" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Stories</SelectItem>
+                <SelectItem value="all">전체 스토리</SelectItem>
                 {stories.map((s) => (
                   <SelectItem key={s.id} value={s.id}>{s.title}</SelectItem>
                 ))}
@@ -179,9 +179,9 @@ export function BacklogView({ projectId, tasks, sprints, stories, members }: Bac
 
           {members.length > 0 && (
             <Select value={filterMember} onValueChange={setFilterMember}>
-              <SelectTrigger className="w-[130px] h-8 text-xs"><SelectValue placeholder="Member" /></SelectTrigger>
+              <SelectTrigger className="w-[130px] h-8 text-xs"><SelectValue placeholder="담당자" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Members</SelectItem>
+                <SelectItem value="all">전체 담당자</SelectItem>
                 {members.map((m) => (
                   <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>
                 ))}
@@ -189,7 +189,7 @@ export function BacklogView({ projectId, tasks, sprints, stories, members }: Bac
             </Select>
           )}
 
-          <span className="text-xs text-muted-foreground ml-auto">{filtered.length} shown</span>
+          <span className="text-xs text-muted-foreground ml-auto">{filtered.length}건 표시</span>
         </div>
 
         {/* Guide */}
@@ -211,7 +211,7 @@ export function BacklogView({ projectId, tasks, sprints, stories, members }: Bac
             icon={<CheckSquare className="h-12 w-12" />}
             title={search ? "검색 결과 없음" : "백로그가 비어있습니다"}
             description={search ? "다른 검색어를 시도하세요." : "새 태스크를 만들거나 Stories에서 분해하세요."}
-            action={<Button onClick={() => setCreateOpen(true)}><Plus className="h-4 w-4 mr-1" />New Task</Button>}
+            action={<Button onClick={() => setCreateOpen(true)}><Plus className="h-4 w-4 mr-1" />새 태스크</Button>}
           />
         ) : (
           <div className="border rounded-lg">

@@ -9,7 +9,7 @@ export function SprintActions({ projectId }: { projectId: string }) {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <Button size="sm" onClick={() => setOpen(true)}><Plus className="h-4 w-4 mr-1" /> New Sprint</Button>
+      <Button size="sm" onClick={() => setOpen(true)}><Plus className="h-4 w-4 mr-1" /> 새 스프린트</Button>
       <SprintDialog open={open} onOpenChange={setOpen} projectId={projectId} />
     </>
   );

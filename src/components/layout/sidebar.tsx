@@ -167,7 +167,7 @@ function SidebarContent({
                     ))}
                     {workspace.projects.length === 0 && (
                       <p className="px-3 py-1 text-xs text-muted-foreground">
-                        No projects
+                        프로젝트 없음
                       </p>
                     )}
                   </div>
@@ -197,11 +197,11 @@ export function MobileSidebar({ workspaces }: SidebarProps) {
       <SheetTrigger asChild>
         <Button variant="ghost" size="icon" className="md:hidden">
           <Menu className="h-5 w-5" />
-          <span className="sr-only">Open menu</span>
+          <span className="sr-only">메뉴 열기</span>
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="w-64 p-0 bg-sidebar text-sidebar-foreground">
-        <SheetTitle className="sr-only">Navigation</SheetTitle>
+        <SheetTitle className="sr-only">내비게이션</SheetTitle>
         <div className="flex h-full flex-col">
           <SidebarContent workspaces={workspaces} onNavigate={() => setOpen(false)} />
         </div>

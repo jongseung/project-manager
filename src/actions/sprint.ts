@@ -10,7 +10,7 @@ import type { Sprint } from "@prisma/client";
 
 export async function createSprint(input: unknown): Promise<ActionResult<Sprint>> {
   const parsed = sprintSchema.safeParse(input);
-  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "Invalid input");
+  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "잘못된 입력입니다");
   if (!(await userOwnsProject(parsed.data.projectId))) return failure("프로젝트에 접근 권한이 없습니다");
 
   if (parsed.data.status === "active") {
@@ -27,13 +27,13 @@ export async function createSprint(input: unknown): Promise<ActionResult<Sprint>
     return success(sprint);
   } catch (e) {
     console.error(e);
-    return failure("Failed to create sprint");
+    return failure("스프린트 생성에 실패했습니다");
   }
 }
 
 export async function updateSprint(id: string, input: unknown): Promise<ActionResult<Sprint>> {
   const parsed = sprintSchema.partial().safeParse(input);
-  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "Invalid input");
+  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "잘못된 입력입니다");
   if (!(await userOwnsSprint(id))) return failure("스프린트에 접근 권한이 없습니다");
 
   if (parsed.data.status === "active") {
@@ -53,7 +53,7 @@ export async function updateSprint(id: string, input: unknown): Promise<ActionRe
     return success(sprint);
   } catch (e) {
     console.error(e);
-    return failure("Failed to update sprint");
+    return failure("스프린트 수정에 실패했습니다");
   }
 }
 
@@ -65,7 +65,7 @@ export async function assignTaskToSprint(sprintId: string, taskId: string): Prom
     return success(undefined);
   } catch (e) {
     console.error(e);
-    return failure("Failed to assign task to sprint");
+    return failure("태스크를 스프린트에 추가하는데 실패했습니다");
   }
 }
 
@@ -77,7 +77,7 @@ export async function removeTaskFromSprint(sprintId: string, taskId: string): Pr
     return success(undefined);
   } catch (e) {
     console.error(e);
-    return failure("Failed to remove task from sprint");
+    return failure("태스크를 스프린트에서 제거하는데 실패했습니다");
   }
 }
 
@@ -90,7 +90,7 @@ export async function deleteSprint(id: string): Promise<ActionResult<void>> {
     return success(undefined);
   } catch (e) {
     console.error(e);
-    return failure("Failed to delete sprint");
+    return failure("스프린트 삭제에 실패했습니다");
   }
 }
 
@@ -102,7 +102,7 @@ export async function restoreSprint(id: string): Promise<ActionResult<void>> {
     return success(undefined);
   } catch (e) {
     console.error(e);
-    return failure("Failed to restore sprint");
+    return failure("스프린트 복원에 실패했습니다");
   }
 }
 

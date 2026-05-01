@@ -13,7 +13,7 @@ export async function createProject(
 ): Promise<ActionResult<Project>> {
   const parsed = projectSchema.safeParse(input);
   if (!parsed.success) {
-    return failure(parsed.error.errors[0]?.message ?? "Invalid input");
+    return failure(parsed.error.errors[0]?.message ?? "잘못된 입력입니다");
   }
 
   // Workspace must belong to caller
@@ -28,7 +28,7 @@ export async function createProject(
     return success(project);
   } catch (e) {
     console.error(e);
-    return failure("Failed to create project");
+    return failure("프로젝트 생성에 실패했습니다");
   }
 }
 
@@ -38,7 +38,7 @@ export async function updateProject(
 ): Promise<ActionResult<Project>> {
   const parsed = projectSchema.partial().safeParse(input);
   if (!parsed.success) {
-    return failure(parsed.error.errors[0]?.message ?? "Invalid input");
+    return failure(parsed.error.errors[0]?.message ?? "잘못된 입력입니다");
   }
 
   if (!(await userOwnsProject(id))) {
@@ -55,7 +55,7 @@ export async function updateProject(
     return success(project);
   } catch (e) {
     console.error(e);
-    return failure("Failed to update project");
+    return failure("프로젝트 수정에 실패했습니다");
   }
 }
 
@@ -76,7 +76,7 @@ export async function deleteProject(
     return success(undefined);
   } catch (e) {
     console.error(e);
-    return failure("Failed to delete project");
+    return failure("프로젝트 삭제에 실패했습니다");
   }
 }
 
@@ -88,7 +88,7 @@ export async function restoreProject(id: string): Promise<ActionResult<void>> {
     return success(undefined);
   } catch (e) {
     console.error(e);
-    return failure("Failed to restore project");
+    return failure("프로젝트 복원에 실패했습니다");
   }
 }
 
@@ -104,6 +104,8 @@ export async function purgeProject(id: string): Promise<ActionResult<void>> {
     return failure("영구 삭제에 실패했습니다");
   }
 }
+
+const PROJECT_TASK_LIMIT = 500;
 
 export async function getProject(id: string) {
   const orgId = await getCurrentOrgId();
@@ -122,7 +124,9 @@ export async function getProject(id: string) {
           story: { select: { id: true, title: true } },
         },
         orderBy: { sortOrder: "asc" },
+        take: PROJECT_TASK_LIMIT,
       },
+      _count: { select: { tasks: { where: { archivedAt: null, parentTaskId: null } } } },
       epics: { orderBy: { sortOrder: "asc" } },
       stories: {
         select: { id: true, title: true, epicId: true },

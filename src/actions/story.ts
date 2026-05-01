@@ -10,7 +10,7 @@ import type { Story } from "@prisma/client";
 
 export async function createStory(input: unknown): Promise<ActionResult<Story>> {
   const parsed = storySchema.safeParse(input);
-  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "Invalid input");
+  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "잘못된 입력입니다");
   if (!(await userOwnsProject(parsed.data.projectId))) return failure("프로젝트에 접근 권한이 없습니다");
 
   try {
@@ -26,13 +26,13 @@ export async function createStory(input: unknown): Promise<ActionResult<Story>> 
     return success(story);
   } catch (e) {
     console.error(e);
-    return failure("Failed to create story");
+    return failure("스토리 생성에 실패했습니다");
   }
 }
 
 export async function updateStory(id: string, input: unknown): Promise<ActionResult<Story>> {
   const parsed = storySchema.partial().safeParse(input);
-  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "Invalid input");
+  if (!parsed.success) return failure(parsed.error.errors[0]?.message ?? "잘못된 입력입니다");
   if (!(await userOwnsStory(id))) return failure("스토리에 접근 권한이 없습니다");
 
   try {
@@ -41,7 +41,7 @@ export async function updateStory(id: string, input: unknown): Promise<ActionRes
     return success(story);
   } catch (e) {
     console.error(e);
-    return failure("Failed to update story");
+    return failure("스토리 수정에 실패했습니다");
   }
 }
 
@@ -53,7 +53,7 @@ export async function deleteStory(id: string): Promise<ActionResult<void>> {
     return success(undefined);
   } catch (e) {
     console.error(e);
-    return failure("Failed to delete story");
+    return failure("스토리 삭제에 실패했습니다");
   }
 }
 
@@ -65,7 +65,7 @@ export async function restoreStory(id: string): Promise<ActionResult<void>> {
     return success(undefined);
   } catch (e) {
     console.error(e);
-    return failure("Failed to restore story");
+    return failure("스토리 복원에 실패했습니다");
   }
 }
 

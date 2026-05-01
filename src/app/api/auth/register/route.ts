@@ -2,9 +2,19 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import bcrypt from "bcryptjs";
 import { registerSchema } from "@/lib/validators";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
   try {
+    const ip = request.headers.get("x-forwarded-for") ?? request.headers.get("x-real-ip") ?? "unknown";
+    const rl = checkRateLimit(`register:${ip}`);
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { error: "요청이 너무 많습니다. 잠시 후 다시 시도해주세요." },
+        { status: 429, headers: { "Retry-After": String(Math.ceil(rl.resetIn / 1000)) } }
+      );
+    }
+
     const body = await request.json();
     const parsed = registerSchema.safeParse(body);
 
@@ -21,19 +31,22 @@ export async function POST(request: Request) {
 
     const passwordHash = await bcrypt.hash(password, 12);
 
-    const user = await db.user.create({
-      data: { name, email, passwordHash },
-    });
+    const user = await db.$transaction(async (tx) => {
+      const newUser = await tx.user.create({
+        data: { name, email, passwordHash },
+      });
 
-    // Auto-create a default organization for the user
-    const org = await db.organization.create({
-      data: {
-        name: `${name}의 조직`,
-        slug: `org-${user.id.slice(0, 8)}`,
-        members: {
-          create: { userId: user.id, role: "owner" },
+      await tx.organization.create({
+        data: {
+          name: `${name}의 조직`,
+          slug: `org-${newUser.id.slice(0, 8)}`,
+          members: {
+            create: { userId: newUser.id, role: "owner" },
+          },
         },
-      },
+      });
+
+      return newUser;
     });
 
     return NextResponse.json({ id: user.id, email: user.email }, { status: 201 });

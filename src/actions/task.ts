@@ -40,7 +40,7 @@ export async function createTask(
 ): Promise<ActionResult<Task>> {
   const parsed = taskSchema.safeParse(input);
   if (!parsed.success) {
-    return failure(parsed.error.errors[0]?.message ?? "Invalid input");
+    return failure(parsed.error.errors[0]?.message ?? "잘못된 입력입니다");
   }
 
   // Ownership: caller must own the target project
@@ -52,7 +52,7 @@ export async function createTask(
   if (parentTaskId) {
     const valid = await validateSubtaskDepth(parentTaskId);
     if (!valid) {
-      return failure("Subtasks cannot be nested more than 2 levels deep");
+      return failure("하위 태스크는 2단계 이상 중첩할 수 없습니다");
     }
     // And the parent task must also belong to this user
     if (!(await userOwnsTask(parentTaskId))) {
@@ -78,7 +78,7 @@ export async function createTask(
     return success(task);
   } catch (e) {
     console.error(e);
-    return failure("Failed to create task");
+    return failure("태스크 생성에 실패했습니다");
   }
 }
 
@@ -87,7 +87,7 @@ export async function updateTask(
 ): Promise<ActionResult<Task>> {
   const parsed = taskUpdateSchema.safeParse(input);
   if (!parsed.success) {
-    return failure(parsed.error.errors[0]?.message ?? "Invalid input");
+    return failure(parsed.error.errors[0]?.message ?? "잘못된 입력입니다");
   }
 
   const { id, ...data } = parsed.data;
@@ -99,7 +99,7 @@ export async function updateTask(
 
   try {
     const existing = await db.task.findUnique({ where: { id } });
-    if (!existing) return failure("Task not found");
+    if (!existing) return failure("태스크를 찾을 수 없습니다");
 
     const updateData: Record<string, unknown> = { ...data };
 
@@ -146,7 +146,7 @@ export async function updateTask(
     return success(task);
   } catch (e) {
     console.error(e);
-    return failure("Failed to update task");
+    return failure("태스크 수정에 실패했습니다");
   }
 }
 
@@ -167,7 +167,7 @@ export async function deleteTask(
     return success(undefined);
   } catch (e) {
     console.error(e);
-    return failure("Failed to delete task");
+    return failure("태스크 삭제에 실패했습니다");
   }
 }
 
@@ -179,7 +179,7 @@ export async function restoreTask(id: string): Promise<ActionResult<void>> {
     return success(undefined);
   } catch (e) {
     console.error(e);
-    return failure("Failed to restore task");
+    return failure("태스크 복원에 실패했습니다");
   }
 }
 
@@ -200,11 +200,14 @@ export async function purgeTask(id: string): Promise<ActionResult<void>> {
  * Shared helper — guard any bulk op: all taskIds must belong to caller's org.
  * Returns null on success, failure ActionResult otherwise.
  */
+const BULK_LIMIT = 200;
+
 async function assertBulkOwnership(taskIds: string[]): Promise<null | ActionResult<never>> {
   if (taskIds.length === 0) return null;
+  if (taskIds.length > BULK_LIMIT) return failure(`일괄 작업은 최대 ${BULK_LIMIT}건까지 가능합니다`);
   const { getCurrentOrgId } = await import("@/lib/session");
   const orgId = await getCurrentOrgId();
-  if (!orgId) return failure("Unauthorized");
+  if (!orgId) return failure("인증이 필요합니다");
   const owned = await db.task.count({
     where: {
       id: { in: taskIds },
@@ -305,7 +308,7 @@ export async function archiveTask(
     return success(task);
   } catch (e) {
     console.error(e);
-    return failure("Failed to archive task");
+    return failure("태스크 보관에 실패했습니다");
   }
 }
 
@@ -316,7 +319,7 @@ export async function reorderTasks(
   // Ownership: check all ids belong to caller's org in a single query
   const { getCurrentOrgId } = await import("@/lib/session");
   const orgId = await getCurrentOrgId();
-  if (!orgId) return failure("Unauthorized");
+  if (!orgId) return failure("인증이 필요합니다");
   const owned = await db.task.count({
     where: {
       id: { in: tasks.map((t) => t.id) },
@@ -341,6 +344,6 @@ export async function reorderTasks(
     return success(undefined);
   } catch (e) {
     console.error(e);
-    return failure("Failed to reorder tasks");
+    return failure("태스크 정렬에 실패했습니다");
   }
 }

@@ -3,11 +3,11 @@ import { Header } from "@/components/layout/header";
 import { WorkspaceCard } from "@/components/workspace/workspace-card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { WorkspaceActions } from "./workspace-actions";
-import { getCurrentOrganization } from "@/lib/session";
+import { requireOrganization } from "@/lib/session";
 import { db } from "@/lib/db";
 
 export default async function WorkspacesPage() {
-  const ctx = await getCurrentOrganization();
+  const ctx = await requireOrganization();
   const workspaces = await db.workspace.findMany({
     where: {
       archivedAt: null,

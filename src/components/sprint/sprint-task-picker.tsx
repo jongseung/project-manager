@@ -40,12 +40,12 @@ export function SprintTaskPicker({ open, onOpenChange, sprintId, availableTasks,
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader><DialogTitle>Add Tasks to Sprint</DialogTitle></DialogHeader>
-        <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search tasks..." className="mb-3" autoFocus />
+        <DialogHeader><DialogTitle>스프린트에 태스크 추가</DialogTitle></DialogHeader>
+        <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="태스크 검색..." className="mb-3" autoFocus />
         <div className="max-h-[300px] overflow-y-auto space-y-1">
           {filtered.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-4">
-              {search ? "No matching tasks found." : "All tasks are already assigned."}
+              {search ? "일치하는 태스크가 없습니다." : "모든 태스크가 이미 배정되었습니다."}
             </p>
           ) : (
             filtered.map((task) => (

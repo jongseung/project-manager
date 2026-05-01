@@ -20,7 +20,7 @@ export async function createSavedView(input: {
   shared?: boolean;
 }): Promise<ActionResult<SavedView>> {
   const userId = await currentUserId();
-  if (!userId) return failure("Unauthorized");
+  if (!userId) return failure("인증이 필요합니다");
   if (!(await userOwnsProject(input.projectId))) return failure("프로젝트에 접근 권한이 없습니다");
   if (!input.name.trim()) return failure("이름을 입력해 주세요");
   try {
@@ -47,7 +47,7 @@ export async function updateSavedView(
   patch: Partial<{ name: string; config: Record<string, unknown>; shared: boolean }>,
 ): Promise<ActionResult<SavedView>> {
   const userId = await currentUserId();
-  if (!userId) return failure("Unauthorized");
+  if (!userId) return failure("인증이 필요합니다");
   const existing = await db.savedView.findUnique({ where: { id }, select: { userId: true, projectId: true } });
   if (!existing || existing.userId !== userId) return failure("권한이 없습니다");
   try {
@@ -69,7 +69,7 @@ export async function updateSavedView(
 
 export async function deleteSavedView(id: string): Promise<ActionResult<void>> {
   const userId = await currentUserId();
-  if (!userId) return failure("Unauthorized");
+  if (!userId) return failure("인증이 필요합니다");
   const existing = await db.savedView.findUnique({ where: { id }, select: { userId: true } });
   if (!existing || existing.userId !== userId) return failure("권한이 없습니다");
   try {
