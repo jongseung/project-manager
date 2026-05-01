@@ -2,3 +2,7 @@ node_modules/
 .next/
 .env
 *.log
+.bkit/
+.omc/
+.claude/
+tsconfig.tsbuildinfo

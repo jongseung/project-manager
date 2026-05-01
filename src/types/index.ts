@@ -35,9 +35,12 @@ export type {
 };
 
 export type TaskWithRelations = Task & {
-  labels: { label: Label }[];
+  labels: { label: { id: string; name: string; color: string } }[];
   subtasks: Task[];
-  epic: Epic | null;
+  member: { id: string; name: string; color: string } | null;
+  comments: { id: string }[];
+  epic: { id: string; name: string } | null;
+  story: { id: string; title: string } | null;
 };
 
 export type ProjectWithTasks = Project & {

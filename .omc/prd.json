@@ -1,129 +1,45 @@
 {
-  "name": "Project Manager - Phase 1: Foundation",
-  "description": "Local-first PM app with Next.js 15 + Prisma + SQLite. Phase 1 delivers core task management.",
+  "name": "Critical Fixes + Missing Features",
   "stories": [
     {
-      "id": "US-001",
-      "title": "Project Scaffolding + Database Schema",
+      "id": "CRIT-001",
+      "title": "Fix Critical Issues + Warnings",
       "priority": 1,
-      "passes": false,
+      "passes": true,
       "acceptanceCriteria": [
-        "package.json exists with all Phase 1 dependencies (next, react, prisma, @dnd-kit, zod, date-fns, lucide-react, next-themes, sonner)",
-        "tsconfig.json has strict mode enabled",
-        "prisma/schema.prisma defines all 17 entities with correct relationships",
-        "npx prisma migrate dev runs without errors",
-        "postcss.config.mjs references @tailwindcss/postcss (no tailwind.config.ts)",
-        "vitest.config.ts exists with jsdom environment",
-        "src/lib/db.ts exports a Prisma client singleton",
-        "src/lib/constants.ts exports status and priority enums",
-        "components.json configured for shadcn/ui"
+        "dependency.ts cycle detection uses single query + in-memory BFS",
+        "dashboard/page.tsx uses count/groupBy instead of loading all records",
+        "reminders/page.tsx TaskList extracted outside page function",
+        "All action catch blocks have console.error(e)",
+        "5 missing loading.tsx files added",
+        "useServerAction uses useRef for options stability",
+        "Command palette navigates to task project on click",
+        "All Zod schemas consolidated in validators.ts",
+        "npx next build passes"
       ]
     },
     {
-      "id": "US-002",
-      "title": "Layout + Navigation Shell",
+      "id": "FEAT-001",
+      "title": "Data Import + Bulk Operations",
       "priority": 2,
       "passes": false,
       "acceptanceCriteria": [
-        "src/app/layout.tsx renders Providers wrapping children",
-        "src/components/providers.tsx exports ThemeProvider + Toaster",
-        "src/app/globals.css uses Tailwind v4 @theme syntax (no tailwind.config.ts)",
-        "src/components/layout/sidebar.tsx renders workspace/project navigation",
-        "src/components/layout/app-shell.tsx combines sidebar + header + content area",
-        "src/app/(app)/layout.tsx uses AppShell for all app routes",
-        "loading.tsx files exist for today, projects/[id], workspaces routes",
-        "npm run dev starts without errors and renders the shell"
+        "src/actions/import.ts imports JSON backup",
+        "Settings page has Import section",
+        "List view has bulk select + status change",
+        "npx next build passes"
       ]
     },
     {
-      "id": "US-003",
-      "title": "Server Actions + Data Layer",
+      "id": "FEAT-002",
+      "title": "Recurring Tasks + Templates",
       "priority": 3,
       "passes": false,
       "acceptanceCriteria": [
-        "src/lib/action-utils.ts exports ActionResult<T> type",
-        "src/hooks/use-server-action.ts exports useServerAction hook with loading/error/toast",
-        "src/lib/validators.ts exports Zod schemas for workspace, project, task",
-        "src/actions/workspace.ts has createWorkspace, updateWorkspace, deleteWorkspace returning ActionResult",
-        "src/actions/project.ts has createProject, updateProject, deleteProject returning ActionResult",
-        "src/actions/task.ts has createTask, updateTask, deleteTask, reorderTasks, archiveTask returning ActionResult",
-        "src/actions/task.ts enforces max 2-level subtask depth",
-        "src/actions/daily.ts has addToDailyPlan, removeFromDailyPlan, getDailyPlan",
-        "src/actions/activity.ts logs mutations to ActivityLog table"
-      ]
-    },
-    {
-      "id": "US-004",
-      "title": "Today View + Quick Add",
-      "priority": 4,
-      "passes": false,
-      "acceptanceCriteria": [
-        "src/app/(app)/today/page.tsx renders as RSC fetching today's daily plan",
-        "src/components/today/daily-tasks.tsx displays tasks from DailyPlanTask with completion derived from Task.status",
-        "src/components/today/quick-add.tsx creates a task and adds to daily plan in one action",
-        "src/components/today/daily-summary.tsx shows completed count vs total",
-        "Empty state renders when no tasks planned for today",
-        "Completing a task (status=done) reflects immediately in the summary"
-      ]
-    },
-    {
-      "id": "US-005",
-      "title": "Kanban Board View",
-      "priority": 5,
-      "passes": false,
-      "acceptanceCriteria": [
-        "src/app/(app)/projects/[id]/board/page.tsx renders as RSC passing tasks to KanbanBoard",
-        "src/components/board/kanban-board.tsx renders columns for each task status using @dnd-kit",
-        "src/components/board/kanban-column.tsx renders tasks in a droppable column",
-        "src/components/board/task-card.tsx shows title, priority badge, and due date",
-        "Dragging a task between columns updates task status via server action",
-        "Optimistic update: card moves immediately, reverts on server error",
-        "Empty state renders when project has no tasks"
-      ]
-    },
-    {
-      "id": "US-006",
-      "title": "List View",
-      "priority": 6,
-      "passes": false,
-      "acceptanceCriteria": [
-        "src/app/(app)/projects/[id]/list/page.tsx renders as RSC passing tasks to TaskTable",
-        "src/components/list/task-table.tsx displays tasks in sortable table format",
-        "Columns: title, status, priority, due date, created date",
-        "Client-side sorting by clicking column headers",
-        "Task status can be changed inline via dropdown",
-        "Empty state renders when no tasks exist"
-      ]
-    },
-    {
-      "id": "US-007",
-      "title": "Workspace + Project Management",
-      "priority": 7,
-      "passes": false,
-      "acceptanceCriteria": [
-        "src/app/(app)/workspaces/page.tsx lists all workspaces",
-        "src/components/workspace/workspace-dialog.tsx creates/edits workspaces",
-        "src/app/(app)/workspaces/[id]/page.tsx shows projects in workspace",
-        "src/components/project/project-dialog.tsx creates/edits projects",
-        "src/components/project/project-header.tsx shows project name with view tabs (Board/List)",
-        "Sidebar dynamically shows workspaces and their projects",
-        "Deleting a workspace shows confirmation dialog",
-        "Empty states for workspaces page and project list"
-      ]
-    },
-    {
-      "id": "US-008",
-      "title": "Task Create/Edit Dialog + Detail Panel",
-      "priority": 8,
-      "passes": false,
-      "acceptanceCriteria": [
-        "src/components/task/task-create-dialog.tsx opens dialog with form for new task",
-        "src/components/task/task-detail-panel.tsx opens as sheet/slide-over showing full task details",
-        "src/components/task/priority-badge.tsx renders colored badge for each priority level",
-        "src/components/task/status-select.tsx renders dropdown for status changes",
-        "Task form validates with Zod (title required, valid dates)",
-        "Creating/editing task shows success toast",
-        "src/components/shared/empty-state.tsx is reusable across views"
+        "Task model has recurrence and templateName fields",
+        "Recurring task creates next occurrence on completion",
+        "Task templates can be saved and applied",
+        "npx next build passes"
       ]
     }
   ]

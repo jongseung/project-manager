@@ -17,3 +17,10 @@
 - [ ] Sprint workflow: should sprint completion auto-move incomplete tasks to next sprint, or leave them unassigned? -- Affects sprint retrospective and backlog management UX
 - [ ] Goal progress calculation: simple average of linked project completion, or weighted by project size (task count)? -- Weighted is more accurate but harder to explain to the user
 - [ ] Mind map to task conversion: should it create tasks in a specific project, or prompt the user to choose? -- Standalone mind maps have no project context, so user must pick
+
+## daily-scrum-redesign - 2026-04-14
+
+- [ ] Which project should action items be created under? A dedicated "회의 액션" project, or user picks per item? — Affects UX complexity of the action item creation flow
+- [ ] Should meeting timer auto-start when the page loads, or require manual "회의 시작" click? — Auto-start is convenient but may record false meetings
+- [ ] Should the retro section be visible only after clicking "회의 종료", or always visible? — Gating it enforces meeting flow but reduces flexibility
+- [ ] Should the 5-section layout use vertical scroll or tabbed navigation? — Scroll is simpler for a meeting flow; tabs save space but break the linear progression

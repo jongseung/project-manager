@@ -3,61 +3,196 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-model Workspace {
-  id          String    @id @default(cuid())
-  name        String
-  description String?
-  color       String    @default("#6366f1")
-  icon        String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+// ─── Auth & Multi-Tenancy ───
 
-  projects Project[]
-  labels   Label[]
-  goals    Goal[]
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  name           String?
+  passwordHash   String?
+  image          String?
+  emailVerified  DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  accounts       Account[]
+  sessions       Session[]
+  orgMemberships OrgMember[]
+  projectRoles   ProjectMember[]
+  comments       Comment[]       @relation("CommentAuthor")
+  savedViews     SavedView[]     @relation("SavedViewAuthor")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  logo      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members       OrgMember[]
+  workspaces    Workspace[]
+  notifications Notification[]
+  standupNotes  StandupNote[]
+  taskTemplates TaskTemplate[]
+  dailyPlans    DailyPlan[]
+}
+
+model OrgMember {
+  id             String   @id @default(cuid())
+  organizationId String
+  userId         String
+  role           String   @default("member") // owner, admin, member
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+}
+
+model ProjectMember {
+  id        String @id @default(cuid())
+  projectId String
+  userId    String
+  role      String @default("editor") // owner, editor, viewer
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+}
+
+model Workspace {
+  id             String    @id @default(cuid())
+  organizationId String?
+  name           String
+  description    String?
+  color          String    @default("#6366f1")
+  icon           String?
+  archivedAt     DateTime? // Soft-delete marker. Non-null = in trash.
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  projects     Project[]
+  labels       Label[]
+  goals        Goal[]
+  recurring    RecurringTemplate[]
+  boards       BoardView[]
+  comments     Comment[]
+  members      Member[]
+
+  @@index([organizationId])
 }
 
 model Project {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   workspaceId String
   name        String
   description String?
-  status      String   @default("active") // active, paused, completed, archived
-  color       String   @default("#6366f1")
+  status      String    @default("active") // active, paused, completed, archived
+  color       String    @default("#6366f1")
   startDate   String?
   targetDate  String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  archivedAt  DateTime? // Soft-delete marker. Non-null = in trash (distinct from status="archived").
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-  workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  epics       Epic[]
-  tasks       Task[]
-  milestones  Milestone[]
-  sprints     Sprint[]
-  kpis        KPI[]
-  goalLinks   GoalProject[]
-  mindMaps    MindMap[]
+  // Phase 2.5: Inception fields
+  summary          String?
+  problemStatement String?
+  definitionOfDone String?
+
+  workspace      Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  projectMembers ProjectMember[]
+  epics          Epic[]
+  tasks          Task[]
+  milestones     Milestone[]
+  sprints        Sprint[]
+  kpis           KPI[]
+  goalLinks      GoalProject[]
+  mindMaps       MindMap[]
+  objectives     Objective[]
+  stories        Story[]
+  savedViews     SavedView[]
 }
 
 model Epic {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   projectId   String
   name        String
   description String?
-  status      String   @default("todo") // todo, in_progress, done
-  priority    String   @default("medium") // urgent, high, medium, low
+  status      String    @default("todo") // todo, in_progress, done
+  priority    String    @default("medium") // urgent, high, medium, low
   startDate   String?
   targetDate  String?
-  sortOrder   Int      @default(0)
+  sortOrder   Int       @default(0)
+  archivedAt  DateTime? // Soft-delete marker.
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   tasks   Task[]
+  stories Story[]
+}
+
+model Member {
+  id          String   @id @default(cuid())
+  workspaceId String?  // NEW — tenant scope. Nullable for backward-compat; backfill then set NOT NULL.
+  name        String
+  role        String?
+  email       String?
+  color       String   @default("#6366f1")
+  avatar      String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  tasks     Task[]
+
+  @@index([workspaceId, isActive])
 }
 
 model Task {
@@ -65,6 +200,7 @@ model Task {
   epicId       String?
   projectId    String
   parentTaskId String?
+  memberId     String?
   title        String
   description  String?
   status       String    @default("todo") // backlog, todo, in_progress, in_review, done, cancelled
@@ -74,21 +210,30 @@ model Task {
   estimatedHours Float?
   actualHours    Float?
   sortOrder    Int       @default(0)
+  recurrence   String    @default("none") // none, daily, weekly, monthly
+  templateName String?
+  recurringTemplateId String?
+  storyId      String?
   completedAt  DateTime?
   archivedAt   DateTime?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  project      Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  epic         Epic?           @relation(fields: [epicId], references: [id], onDelete: SetNull)
-  parentTask   Task?           @relation("SubTasks", fields: [parentTaskId], references: [id], onDelete: SetNull)
-  subtasks     Task[]          @relation("SubTasks")
+  project      Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  epic         Epic?              @relation(fields: [epicId], references: [id], onDelete: SetNull)
+  parentTask   Task?              @relation("SubTasks", fields: [parentTaskId], references: [id], onDelete: SetNull)
+  subtasks     Task[]             @relation("SubTasks")
+  member       Member?            @relation(fields: [memberId], references: [id], onDelete: SetNull)
+  recurringTemplate RecurringTemplate? @relation(fields: [recurringTemplateId], references: [id], onDelete: SetNull)
+  story        Story?             @relation(fields: [storyId], references: [id], onDelete: SetNull)
   labels       TaskLabel[]
+  comments     Comment[]
   dailyPlanTasks DailyPlanTask[]
   sprintTasks  SprintTask[]
   predecessorDeps Dependency[] @relation("PredecessorDeps")
   successorDeps   Dependency[] @relation("SuccessorDeps")
   mindMapNodes MindMapNode[]
+  attachments  Attachment[]
 }
 
 model Label {
@@ -114,13 +259,19 @@ model TaskLabel {
 }
 
 model DailyPlan {
-  id        String   @id @default(cuid())
-  date      String   @unique // YYYY-MM-DD
-  notes     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             String   @id @default(cuid())
+  organizationId String?  // NEW — tenant scope. Backfill then set NOT NULL.
+  date           String   // YYYY-MM-DD
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  tasks DailyPlanTask[]
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  tasks        DailyPlanTask[]
+
+  // Unique per tenant (was globally unique by date).
+  @@unique([organizationId, date])
+  @@index([date])
 }
 
 model DailyPlanTask {
@@ -155,6 +306,7 @@ model Milestone {
   status      String    @default("pending") // pending, reached, missed
   reachedAt   DateTime?
   sortOrder   Int       @default(0)
+  archivedAt  DateTime? // Soft-delete marker.
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
@@ -162,15 +314,16 @@ model Milestone {
 }
 
 model Sprint {
-  id              String   @id @default(cuid())
+  id              String    @id @default(cuid())
   projectId       String
   name            String
   startDate       String
   endDate         String
-  status          String   @default("planning") // planning, active, completed
+  status          String    @default("planning") // planning, active, completed
   goalDescription String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  archivedAt      DateTime? // Soft-delete marker.
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   project Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
   tasks   SprintTask[]
@@ -187,6 +340,7 @@ model SprintTask {
   @@id([sprintId, taskId])
 }
 
+// Goal has archivedAt added as soft-delete marker.
 model Goal {
   id          String    @id @default(cuid())
   workspaceId String
@@ -196,6 +350,7 @@ model Goal {
   startDate   String?
   targetDate  String?
   completedAt DateTime?
+  archivedAt  DateTime? // Soft-delete marker. Non-null = in trash.
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
@@ -274,10 +429,273 @@ model MindMapNode {
 }
 
 model ActivityLog {
-  id         String   @id @default(cuid())
-  entityType String   // task, project, epic, goal, milestone, sprint, kpi
-  entityId   String
-  action     String   // created, updated, deleted, status_changed, moved, completed, archived
-  details    String?  // JSON string
-  occurredAt DateTime @default(now())
+  id             String   @id @default(cuid())
+  entityType     String   // task, project, epic, goal, milestone, sprint, kpi
+  entityId       String
+  action         String   // created, updated, deleted, status_changed, moved, completed, archived
+  details        String?  // JSON string
+  userId         String?
+  organizationId String?
+  occurredAt     DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([occurredAt])
+  @@index([organizationId])
+}
+
+model StandupNote {
+  id               String    @id @default(cuid())
+  organizationId   String?   // NEW — tenant scope. Nullable during migration; backfill then set NOT NULL.
+  date             String    // YYYY-MM-DD
+  yesterday        String?
+  today            String?
+  blockers         String?
+  actionItems      String?   // JSON
+  retro            String?   // JSON
+  meetingStartedAt DateTime?
+  meetingEndedAt   DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  // Unique per tenant (was globally unique by date).
+  @@unique([organizationId, date])
+  @@index([date])
+}
+
+model TaskTemplate {
+  id             String   @id @default(cuid())
+  organizationId String?  // NEW — tenant scope. Backfill then set NOT NULL.
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  title          String
+  description    String?
+  priority       String   @default("none")
+  estimatedHours Float?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+// ─── Phase 1.6: 반복 태스크 시스템 ───
+
+model RecurringTemplate {
+  id          String   @id @default(cuid())
+  workspaceId String
+  title       String
+  description String?
+  priority    String   @default("medium") // urgent, high, medium, low
+  frequency   String   @default("daily") // daily, weekly, biweekly, monthly, quarterly, yearly, custom
+  interval    Int      @default(1)
+  daysOfWeek  String   @default("[]") // JSON array e.g. "[1,3,5]" (0=Sun..6=Sat)
+  dayOfMonth  Int?
+  timeOfDay   String?  // "09:00" format
+  isActive    Boolean  @default(true)
+  nextRunAt   DateTime
+  lastRunAt   DateTime?
+  labelIds    String   @default("[]") // JSON array of label IDs
+  projectId   String?
+  memberId    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace         Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  tasks             Task[]
+  subtaskTemplates  RecurringSubtask[]
+}
+
+model RecurringSubtask {
+  id          String @id @default(cuid())
+  recurringId String
+  title       String
+  sortOrder   Int    @default(0)
+
+  recurring RecurringTemplate @relation(fields: [recurringId], references: [id], onDelete: Cascade)
+}
+
+// ─── Phase 2: 칸반보드 커스텀 ───
+
+model BoardView {
+  id          String   @id @default(cuid())
+  workspaceId String
+  name        String
+  columns     String   @default("[]") // JSON: [{ id, title, color, statuses }]
+  wipLimits   String   @default("{}") // JSON: { [status]: limit } e.g. {"in_progress": 5}
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+// ─── Phase 2.5: Story & OKR 시스템 ───
+
+model Objective {
+  id          String   @id @default(cuid())
+  projectId   String
+  title       String
+  description String?
+  status      String   @default("not_started") // not_started, in_progress, achieved, missed
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  project    Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  keyResults KeyResult[]
+}
+
+model KeyResult {
+  id           String   @id @default(cuid())
+  objectiveId  String
+  title        String
+  metricName   String?
+  unit         String   @default("%")
+  startValue   Float    @default(0)
+  currentValue Float    @default(0)
+  targetValue  Float
+  direction    String   @default("increase") // increase, decrease, maintain
+  deadline     String?
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  objective   Objective      @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
+  snapshots   KRSnapshot[]
+  storyLinks  StoryKRLink[]
+}
+
+model KRSnapshot {
+  id          String   @id @default(cuid())
+  keyResultId String
+  value       Float
+  note        String?
+  recordedAt  DateTime @default(now())
+
+  keyResult KeyResult @relation(fields: [keyResultId], references: [id], onDelete: Cascade)
+}
+
+model Story {
+  id          String    @id @default(cuid())
+  projectId   String
+  epicId      String?
+  title       String
+  description String?
+  userStory   String?  // "As a <role>, I want <feature>, so that <benefit>"
+  storyPoints Int?
+  status      String    @default("backlog")
+  priority    String    @default("medium")
+  sortOrder   Int       @default(0)
+  archivedAt  DateTime? // Soft-delete marker.
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  project    Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  epic       Epic?         @relation(fields: [epicId], references: [id], onDelete: SetNull)
+  tasks      Task[]
+  krLinks    StoryKRLink[]
+}
+
+model StoryKRLink {
+  storyId         String
+  keyResultId     String
+  estimatedImpact Float?
+
+  story     Story     @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  keyResult KeyResult @relation(fields: [keyResultId], references: [id], onDelete: Cascade)
+
+  @@id([storyId, keyResultId])
+}
+
+// ─── Phase 5: 코멘트 시스템 ───
+
+model Comment {
+  id              String   @id @default(cuid())
+  taskId          String?
+  workspaceId     String?
+  userId          String?
+  parentCommentId String?  // NEW — threaded replies
+  content         String
+  authorName      String   @default("User")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  mentions  String?    // JSON: ["memberId1", "memberId2"]
+
+  task          Task?              @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  workspace     Workspace?         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  author        User?              @relation("CommentAuthor", fields: [userId], references: [id], onDelete: SetNull)
+  parentComment Comment?           @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
+  replies       Comment[]          @relation("CommentReplies")
+  reactions     CommentReaction[]
+
+  @@index([parentCommentId])
+}
+
+// Emoji reactions to comments.
+// (authorName is free text until we fully migrate to user-auth — same pattern as Comment.)
+model CommentReaction {
+  id          String   @id @default(cuid())
+  commentId   String
+  emoji       String   // single emoji character/cluster, e.g. "👍"
+  authorName  String   @default("User")
+  userId      String?  // set when authenticated; used for uniqueness
+  createdAt   DateTime @default(now())
+
+  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  // One user can only have one of each emoji per comment — toggle on repeat click.
+  @@unique([commentId, emoji, userId])
+  @@unique([commentId, emoji, authorName])
+  @@index([commentId])
+}
+
+model Attachment {
+  id        String   @id @default(cuid())
+  taskId    String
+  fileName  String
+  fileSize  Int
+  mimeType  String
+  url       String
+  createdAt DateTime @default(now())
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+}
+
+/**
+ * User-saved view configurations (filters, sort, group-by) scoped to a project.
+ * Private by default; `shared=true` makes it visible to other members of the same organization.
+ */
+model SavedView {
+  id        String   @id @default(cuid())
+  userId    String
+  projectId String
+  scope     String   // "list" | "board" | "backlog" | "calendar" | ...
+  name      String
+  config    String   // JSON payload (search, status filter, priority filter, memberIds, etc.)
+  shared    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation("SavedViewAuthor", fields: [userId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, projectId, scope, name])
+  @@index([projectId, scope])
+}
+
+model Notification {
+  id             String   @id @default(cuid())
+  organizationId String?  // NEW — tenant scope. Backfill then set NOT NULL.
+  recipientId    String   // Member ID who receives the notification
+  type           String   // "mention", "assign", "due_date", "comment"
+  title          String
+  message        String
+  link           String?
+  read           Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, recipientId, read])
+  @@index([recipientId, createdAt])
 }

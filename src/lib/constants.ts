@@ -10,12 +10,12 @@ export const TASK_STATUSES = [
 export type TaskStatus = (typeof TASK_STATUSES)[number];
 
 export const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
-  backlog: "Backlog",
-  todo: "To Do",
-  in_progress: "In Progress",
-  in_review: "In Review",
-  done: "Done",
-  cancelled: "Cancelled",
+  backlog: "백로그",
+  todo: "할 일",
+  in_progress: "진행 중",
+  in_review: "검토 중",
+  done: "완료",
+  cancelled: "취소",
 };
 
 export const TASK_STATUS_COLORS: Record<TaskStatus, string> = {
@@ -46,11 +46,11 @@ export const TASK_PRIORITIES = [
 export type TaskPriority = (typeof TASK_PRIORITIES)[number];
 
 export const TASK_PRIORITY_LABELS: Record<TaskPriority, string> = {
-  urgent: "Urgent",
-  high: "High",
-  medium: "Medium",
-  low: "Low",
-  none: "No Priority",
+  urgent: "긴급",
+  high: "높음",
+  medium: "보통",
+  low: "낮음",
+  none: "없음",
 };
 
 export const TASK_PRIORITY_COLORS: Record<TaskPriority, string> = {
@@ -71,10 +71,10 @@ export const PROJECT_STATUSES = [
 export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
 
 export const PROJECT_STATUS_LABELS: Record<ProjectStatus, string> = {
-  active: "Active",
-  paused: "Paused",
-  completed: "Completed",
-  archived: "Archived",
+  active: "진행 중",
+  paused: "일시정지",
+  completed: "완료",
+  archived: "보관",
 };
 
 export const EPIC_STATUSES = ["todo", "in_progress", "done"] as const;
@@ -102,6 +102,52 @@ export const DEPENDENCY_TYPES = [
   "start_to_finish",
 ] as const;
 export type DependencyType = (typeof DEPENDENCY_TYPES)[number];
+
+// Phase 1.6: Recurring
+export const RECURRING_FREQUENCIES = [
+  "daily",
+  "weekly",
+  "biweekly",
+  "monthly",
+  "quarterly",
+  "yearly",
+  "custom",
+] as const;
+export type RecurringFrequency = (typeof RECURRING_FREQUENCIES)[number];
+
+export const RECURRING_FREQUENCY_LABELS: Record<RecurringFrequency, string> = {
+  daily: "매일",
+  weekly: "매주",
+  biweekly: "격주",
+  monthly: "매월",
+  quarterly: "분기",
+  yearly: "매년",
+  custom: "사용자 정의",
+};
+
+export const WEEKDAY_LABELS = ["일", "월", "화", "수", "목", "금", "토"] as const;
+
+// Phase 2.5: Story
+export const STORY_STATUSES = [
+  "backlog",
+  "todo",
+  "in_progress",
+  "in_review",
+  "done",
+  "cancelled",
+] as const;
+export type StoryStatus = (typeof STORY_STATUSES)[number];
+
+export const STORY_STATUS_LABELS: Record<StoryStatus, string> = {
+  backlog: "백로그",
+  todo: "할 일",
+  in_progress: "진행 중",
+  in_review: "검토 중",
+  done: "완료",
+  cancelled: "취소",
+};
+
+export const STORY_POINTS = [1, 2, 3, 5, 8, 13, 21] as const;
 
 export const DEFAULT_COLORS = [
   "#6366f1",
