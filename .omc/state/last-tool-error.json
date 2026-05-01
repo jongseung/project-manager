@@ -1,7 +1,0 @@
-{
-  "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"git filter-branch --force --index-filter 'git rm -r --cached --ignore-unmatch node_modules .next' --prune-empty HEAD\",\"timeout\":300000,\"description\":\"Remove node_modules and .next from ent...",
-  "error": "Exit code 1\nWARNING: git-filter-branch has a glut of gotchas generating mangled history\n\t rewrites.  Hit Ctrl-C before proceeding to abort, then use an\n\t alternative filtering tool such as 'git filter-repo'\n\t (https://github.com/newren/git-filter-repo/) instead.  See the\n\t filter-branch manual page for more details; to squelch this warning,\n\t set FILTER_BRANCH_SQUELCH_WARNING=1.\nProceeding with filter-branch...\n\nCannot rewrite branches: You have unstaged changes.",
-  "timestamp": "2026-04-30T23:06:36.414Z",
-  "retry_count": 1
-}
