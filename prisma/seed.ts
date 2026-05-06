@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
@@ -76,10 +75,9 @@ async function main() {
     ],
   });
 
-  // ─── AUTH: 테스트 계정 + 조직 ─────────────────────────
-  const passwordHash = await bcrypt.hash("test1234", 12);
+  // ─── 기본 사용자 + 조직 (쿠키 기반 자동 세션) ─────────────────
   const testUser = await prisma.user.create({
-    data: { email: "admin@pm.dev", name: "관리자", passwordHash },
+    data: { email: "user@local", name: "사용자" },
   });
   const org = await prisma.organization.create({
     data: {
@@ -88,7 +86,7 @@ async function main() {
       members: { create: { userId: testUser.id, role: "owner" } },
     },
   });
-  console.log("  Login: admin@pm.dev / test1234");
+  console.log("  자동 세션: user@local (쿠키 기반)");
 
   // ─── WORKSPACE 1: 설비엔지니어링팀 ─────────────────────────
   const ws1 = await prisma.workspace.create({

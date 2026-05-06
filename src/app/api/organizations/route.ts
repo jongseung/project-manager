@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { createOrgSchema } from "@/lib/validators";
+import { getCurrentUser } from "@/lib/session";
 
 export async function POST(request: Request) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "인증이 필요합니다" }, { status: 401 });
+  const user = await getCurrentUser();
+  if (!user?.id) {
+    return NextResponse.json({ error: "세션이 필요합니다" }, { status: 401 });
   }
 
   try {
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
         name: parsed.data.name,
         slug,
         members: {
-          create: { userId: session.user.id, role: "owner" },
+          create: { userId: user.id, role: "owner" },
         },
       },
     });
@@ -35,13 +35,13 @@ export async function POST(request: Request) {
 }
 
 export async function GET() {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "인증이 필요합니다" }, { status: 401 });
+  const user = await getCurrentUser();
+  if (!user?.id) {
+    return NextResponse.json({ error: "세션이 필요합니다" }, { status: 401 });
   }
 
   const memberships = await db.orgMember.findMany({
-    where: { userId: session.user.id },
+    where: { userId: user.id },
     include: { organization: true },
   });
 

@@ -6,7 +6,7 @@ import { RealtimeProvider } from "@/components/notifications/realtime-provider";
 import { requireOrganization } from "@/lib/session";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  // Enforce: signed-in + owns an org. Redirects to /login or /onboarding otherwise.
+  // Enforce: has session cookie + owns an org. Redirects to /setup otherwise.
   await requireOrganization();
 
   return (

@@ -1,16 +1,30 @@
-import { auth } from "@/lib/auth";
+import { cookies } from "next/headers";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 
+const COOKIE_NAME = "pm-user-id";
+
+/**
+ * Get user ID from cookie. Returns null if not set.
+ */
+async function getUserIdFromCookie(): Promise<string | null> {
+  const cookieStore = await cookies();
+  return cookieStore.get(COOKIE_NAME)?.value ?? null;
+}
+
 export async function getCurrentUser() {
-  const session = await auth();
-  if (!session?.user?.id) return null;
-  return session.user;
+  const userId = await getUserIdFromCookie();
+  if (!userId) return null;
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    select: { id: true, email: true, name: true, image: true },
+  });
+  return user;
 }
 
 export async function requireUser() {
   const user = await getCurrentUser();
-  if (!user) redirect("/login");
+  if (!user) redirect("/setup");
   return user;
 }
 
@@ -34,19 +48,18 @@ export async function getCurrentOrganization() {
 
 export async function requireOrganization() {
   const ctx = await getCurrentOrganization();
-  if (!ctx) redirect("/onboarding");
+  if (!ctx) redirect("/setup");
   return ctx;
 }
 
 /**
- * Returns the current user's organization ID or null if not authenticated / no org.
- * Use this in API routes for tenant scoping without redirecting.
+ * Returns the current user's organization ID or null.
  */
 export async function getCurrentOrgId(): Promise<string | null> {
-  const session = await auth();
-  if (!session?.user?.id) return null;
+  const userId = await getUserIdFromCookie();
+  if (!userId) return null;
   const membership = await db.orgMember.findFirst({
-    where: { userId: session.user.id },
+    where: { userId },
     select: { organizationId: true },
     orderBy: { organization: { createdAt: "asc" } },
   });
@@ -54,28 +67,24 @@ export async function getCurrentOrgId(): Promise<string | null> {
 }
 
 /**
- * Throws a 401 response-ready error if no session. Use at the top of API routes.
+ * For API routes - returns userId and orgId or error response.
  */
 export async function requireApiOrg(): Promise<{ userId: string; orgId: string } | { error: Response }> {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return { error: new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { "content-type": "application/json" } }) };
+  const userId = await getUserIdFromCookie();
+  if (!userId) {
+    return { error: new Response(JSON.stringify({ error: "세션이 없습니다" }), { status: 401, headers: { "content-type": "application/json" } }) };
   }
   const membership = await db.orgMember.findFirst({
-    where: { userId: session.user.id },
+    where: { userId },
     select: { organizationId: true },
     orderBy: { organization: { createdAt: "asc" } },
   });
   if (!membership) {
-    return { error: new Response(JSON.stringify({ error: "No organization" }), { status: 403, headers: { "content-type": "application/json" } }) };
+    return { error: new Response(JSON.stringify({ error: "조직이 없습니다" }), { status: 403, headers: { "content-type": "application/json" } }) };
   }
-  return { userId: session.user.id, orgId: membership.organizationId };
+  return { userId, orgId: membership.organizationId };
 }
 
-/**
- * Check that a project belongs to the current user's organization.
- * Returns true/false — does NOT throw. Use in server actions for ownership gating.
- */
 export async function userOwnsProject(projectId: string): Promise<boolean> {
   const orgId = await getCurrentOrgId();
   if (!orgId) return false;
@@ -210,7 +219,7 @@ export async function userOwnsMindMap(mapId: string): Promise<boolean> {
       id: mapId,
       OR: [
         { project: { workspace: { organizationId: orgId } } },
-        { projectId: null }, // standalone maps have no ownership path yet; require auth only
+        { projectId: null },
       ],
     },
     select: { id: true },
@@ -228,14 +237,9 @@ export async function userOwnsRecurringTemplate(templateId: string): Promise<boo
   return hit !== null;
 }
 
-/**
- * Require an authenticated user for server actions that mutate a resource for which
- * we do not yet have a tenant-scoped path in the schema (Member, Notification, StandupNote,
- * TaskTemplate, DailyPlan). Returns null on success or a failure ActionResult.
- */
 export async function requireAuthForGlobalAction(): Promise<null | { kind: "failure"; message: string }> {
   const orgId = await getCurrentOrgId();
-  if (!orgId) return { kind: "failure", message: "Unauthorized" };
+  if (!orgId) return { kind: "failure", message: "세션이 없습니다" };
   return null;
 }
 
@@ -246,7 +250,6 @@ export async function checkProjectAccess(projectId: string, requiredRole: "viewe
     where: { projectId_userId: { projectId, userId: user.id } },
   });
 
-  // Also check org-level admin/owner (they have full access)
   const orgAccess = await db.orgMember.findFirst({
     where: {
       userId: user.id,

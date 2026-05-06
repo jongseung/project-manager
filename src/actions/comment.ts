@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { commentSchema } from "@/lib/validators";
 import { success, failure, type ActionResult } from "@/lib/action-utils";
-import { userOwnsTask, userOwnsWorkspace } from "@/lib/session";
+import { userOwnsTask, userOwnsWorkspace, getCurrentUser } from "@/lib/session";
 import type { Comment } from "@prisma/client";
 
 export async function createComment(input: unknown): Promise<ActionResult<Comment>> {
@@ -65,9 +65,8 @@ export async function createComment(input: unknown): Promise<ActionResult<Commen
 }
 
 export async function deleteComment(id: string): Promise<ActionResult<void>> {
-  const { auth } = await import("@/lib/auth");
-  const session = await auth();
-  const userId = session?.user?.id ?? null;
+  const user = await getCurrentUser();
+  const userId = user?.id ?? null;
 
   const comment = await db.comment.findUnique({
     where: { id },
@@ -103,9 +102,8 @@ export async function updateComment(
   content: string,
 ): Promise<ActionResult<void>> {
   if (!content.trim()) return failure("내용을 입력해 주세요");
-  const { auth } = await import("@/lib/auth");
-  const session = await auth();
-  const userId = session?.user?.id ?? null;
+  const user = await getCurrentUser();
+  const userId = user?.id ?? null;
 
   const comment = await db.comment.findUnique({
     where: { id },

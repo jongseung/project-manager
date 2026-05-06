@@ -1,27 +1,31 @@
-import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-// /api/cron is protected by CRON_SECRET Bearer token, not session auth.
-const publicPaths = ["/login", "/register", "/api/auth", "/api/cron"];
+const COOKIE_NAME = "pm-user-id";
 
-export default auth((req) => {
+export default async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Allow public paths
-  if (publicPaths.some((p) => pathname.startsWith(p))) {
+  // Skip static files and API cron routes
+  if (pathname.startsWith("/api/cron")) {
     return NextResponse.next();
   }
 
-  // Redirect unauthenticated users to login
-  if (!req.auth) {
-    const loginUrl = new URL("/login", req.url);
-    loginUrl.searchParams.set("callbackUrl", pathname);
-    return NextResponse.redirect(loginUrl);
+  const userId = req.cookies.get(COOKIE_NAME)?.value;
+
+  // If no session cookie, redirect to /setup to auto-provision
+  if (!userId && pathname !== "/setup") {
+    return NextResponse.redirect(new URL("/setup", req.url));
+  }
+
+  // If has cookie but visiting /setup, redirect to dashboard
+  if (userId && pathname === "/setup") {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
   return NextResponse.next();
-});
+}
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.svg|public).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.svg|public|api).*)"],
 };

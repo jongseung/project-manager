@@ -3,13 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { success, failure, type ActionResult } from "@/lib/action-utils";
-import { auth } from "@/lib/auth";
-import { getCurrentOrgId, userOwnsProject } from "@/lib/session";
+import { getCurrentOrgId, userOwnsProject, getCurrentUser } from "@/lib/session";
 import type { SavedView } from "@prisma/client";
 
 async function currentUserId(): Promise<string | null> {
-  const session = await auth();
-  return session?.user?.id ?? null;
+  const user = await getCurrentUser();
+  return user?.id ?? null;
 }
 
 export async function createSavedView(input: {
