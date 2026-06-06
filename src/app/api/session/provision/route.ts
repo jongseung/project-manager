@@ -15,10 +15,16 @@ const DEFAULT_ORG_NAME = "내 조직";
 export async function POST() {
   const cookieStore = await cookies();
 
-  // If already has cookie, just return OK
-  const existing = cookieStore.get(COOKIE_NAME);
-  if (existing?.value) {
-    return NextResponse.json({ ok: true });
+  // If already has a cookie pointing to a real user, we're done.
+  // A stale cookie (user no longer exists, e.g. after a DB reset) falls
+  // through to re-provision and reset the cookie — preventing a redirect loop.
+  const existing = cookieStore.get(COOKIE_NAME)?.value;
+  if (existing) {
+    const valid = await db.user.findUnique({
+      where: { id: existing },
+      select: { id: true },
+    });
+    if (valid) return NextResponse.json({ ok: true });
   }
 
   // Find or create default user

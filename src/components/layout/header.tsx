@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Bell, Check, AtSign, Activity } from "lucide-react";
+import Link from "next/link";
+import { Bell, Check, AtSign, Activity, ArrowRight } from "lucide-react";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
@@ -142,14 +143,19 @@ export function Header({ title, children }: HeaderProps) {
   }
 
   return (
-    <header className="flex h-14 items-center border-b bg-background/95 backdrop-blur-sm px-6 gap-2">
-      {title && <h1 className="text-sm font-semibold mr-auto">{title}</h1>}
+    <header className="sticky top-0 z-30 flex h-14 items-center border-b border-border bg-background/80 backdrop-blur-md px-5 gap-2">
+      {title && <h1 className="text-[15px] font-semibold tracking-tight mr-auto">{title}</h1>}
       {children}
       <div className="flex items-center gap-2 ml-auto">
 
         <Popover open={open} onOpenChange={handleOpen}>
           <PopoverTrigger asChild>
-            <Button variant="ghost" size="icon" className="relative">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative"
+              aria-label={totalUnread > 0 ? `알림 ${totalUnread}개 읽지 않음` : "알림"}
+            >
               <Bell className="h-4 w-4" />
               {totalUnread > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-red-500 text-[10px] font-bold text-white flex items-center justify-center">
@@ -252,6 +258,16 @@ export function Header({ title, children }: HeaderProps) {
                     })}
                   </div>
                 )
+              )}
+
+              {tab === "activity" && (
+                <Link
+                  href="/activity"
+                  onClick={() => setOpen(false)}
+                  className="mt-1 flex items-center justify-center gap-1 rounded-md border-t border-border py-2 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  전체 활동 보기 <ArrowRight className="h-3 w-3" />
+                </Link>
               )}
             </div>
           </PopoverContent>

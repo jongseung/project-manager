@@ -7,7 +7,7 @@ import { Header } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { MoreHorizontal, Trash2 } from "lucide-react";
+import { MoreHorizontal, Trash2, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSoftDelete } from "@/hooks/use-soft-delete";
 import { deleteProject, restoreProject } from "@/actions/project";
@@ -22,14 +22,21 @@ interface ProjectHeaderProps {
   storyCount?: number;
 }
 
-const VIEWS = [
+// Primary views stay as always-visible tabs; secondary views move into a
+// "더보기" dropdown to keep the tab bar to a single, uncluttered row.
+const PRIMARY_VIEWS = [
+  { label: "흐름", path: "flow" },
   { label: "칸반보드", path: "board" },
-  { label: "백로그", path: "backlog" },
   { label: "목록", path: "list" },
+  { label: "타임라인", path: "timeline" },
+  { label: "그래프", path: "graph" },
+] as const;
+
+const MORE_VIEWS = [
+  { label: "백로그", path: "backlog" },
   { label: "스토리", path: "stories" },
   { label: "OKR", path: "okr" },
   { label: "캘린더", path: "calendar" },
-  { label: "타임라인", path: "timeline" },
   { label: "스프린트", path: "sprints" },
   { label: "리포트", path: "reports" },
 ] as const;
@@ -38,6 +45,7 @@ export function ProjectHeader({ projectId, projectName, projectColor, workspaceN
   const pathname = usePathname();
   const router = useRouter();
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const moreActive = MORE_VIEWS.some((v) => pathname === `/projects/${projectId}/${v.path}`);
 
   const { del } = useSoftDelete({
     deleteFn: deleteProject,
@@ -77,8 +85,8 @@ export function ProjectHeader({ projectId, projectName, projectColor, workspaceN
         </DropdownMenu>
       </Header>
       <div className="border-b bg-sidebar px-6 py-1.5">
-        <div className="flex gap-0.5">
-          {VIEWS.map((view) => {
+        <div className="flex items-center gap-0.5">
+          {PRIMARY_VIEWS.map((view) => {
             const href = `/projects/${projectId}/${view.path}`;
             const isActive = pathname === href;
             return (
@@ -96,6 +104,36 @@ export function ProjectHeader({ projectId, projectName, projectColor, workspaceN
               </Link>
             );
           })}
+
+          {/* Secondary views grouped under 더보기 to keep one clean row */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                className={cn(
+                  "flex items-center gap-1 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+                  moreActive
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                    : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                )}
+              >
+                더보기
+                <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              {MORE_VIEWS.map((view) => {
+                const href = `/projects/${projectId}/${view.path}`;
+                const isActive = pathname === href;
+                return (
+                  <DropdownMenuItem key={view.path} asChild>
+                    <Link href={href} className={cn(isActive && "bg-accent font-medium")}>
+                      {view.label}
+                    </Link>
+                  </DropdownMenuItem>
+                );
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 

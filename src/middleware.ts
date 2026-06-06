@@ -13,14 +13,13 @@ export default async function middleware(req: NextRequest) {
 
   const userId = req.cookies.get(COOKIE_NAME)?.value;
 
-  // If no session cookie, redirect to /setup to auto-provision
+  // If no session cookie, redirect to /setup to auto-provision.
+  // Note: we intentionally do NOT redirect away from /setup when a cookie
+  // exists — the cookie may be stale (point to a user that no longer exists,
+  // e.g. after a DB reset). /setup re-validates and self-heals the session,
+  // so it must always be reachable to avoid a /setup <-> /dashboard loop.
   if (!userId && pathname !== "/setup") {
     return NextResponse.redirect(new URL("/setup", req.url));
-  }
-
-  // If has cookie but visiting /setup, redirect to dashboard
-  if (userId && pathname === "/setup") {
-    return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
   return NextResponse.next();

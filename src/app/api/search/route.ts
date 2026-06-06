@@ -17,8 +17,8 @@ export async function GET(request: NextRequest) {
         archivedAt: null,
         project: orgScope,
         OR: [
-          { title: { contains: q, mode: "insensitive" } },
-          { description: { contains: q, mode: "insensitive" } },
+          { title: { contains: q } },
+          { description: { contains: q } },
         ],
       },
       include: {
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
       where: {
         archivedAt: null,
         ...orgScope,
-        name: { contains: q, mode: "insensitive" },
+        name: { contains: q },
       },
       select: { id: true, name: true, status: true, color: true },
       take: 5,
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
       where: {
         archivedAt: null,
         project: orgScope,
-        name: { contains: q, mode: "insensitive" },
+        name: { contains: q },
       },
       select: { id: true, name: true, status: true, project: { select: { id: true, name: true } } },
       take: 5,
