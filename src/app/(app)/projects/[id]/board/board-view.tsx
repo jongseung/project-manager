@@ -51,6 +51,19 @@ export function BoardView({ project, tasks, members, labels, epics = [], stories
   const [filterStory, setFilterStory] = useState<string>(searchParams.get("story") ?? "all");
   const [filterSprint, setFilterSprint] = useState<string>(searchParams.get("sprint") ?? "all");
 
+  // Keep filters in sync with URL params so links like /board?epic=<id> apply
+  // even when the board is already open (flow view / graph → filtered board).
+  const paramsKey = searchParams.toString();
+  useEffect(() => {
+    setFilterEpic(searchParams.get("epic") ?? "all");
+    setFilterStory(searchParams.get("story") ?? "all");
+    setFilterSprint(searchParams.get("sprint") ?? "all");
+    setFilterMember(searchParams.get("member") ?? "all");
+    setFilterPriority(searchParams.get("priority") ?? "all");
+    setFilterLabel(searchParams.get("label") ?? "all");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paramsKey]);
+
   const filteredTasks = useMemo(() => {
     return tasks.filter((t) => {
       if (search && !t.title.toLowerCase().includes(search.toLowerCase())) return false;
@@ -180,7 +193,7 @@ export function BoardView({ project, tasks, members, labels, epics = [], stories
 
         {hasFilters && (
           <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={clearFilters}>
-            Clear
+            필터 초기화
           </Button>
         )}
 
