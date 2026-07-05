@@ -46,7 +46,7 @@ export async function createComment(input: unknown): Promise<ActionResult<Commen
                 type: "mention",
                 title: `${authorName}님이 멘션했습니다`,
                 message: task.title,
-                link: `/projects/${task.projectId}?task=${task.id}`,
+                link: `/projects/${task.projectId}/board?task=${task.id}`,
               })),
             });
           }

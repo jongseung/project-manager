@@ -16,13 +16,14 @@ const STAGE_COLOR: Record<string, string> = {
 };
 
 function SignalCard({
-  icon: Icon, tone, title, count, tasks,
+  icon: Icon, tone, title, count, tasks, projectId,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   tone: "red" | "amber" | "violet" | "muted";
   title: string;
   count: number;
   tasks?: FlowSignalTask[];
+  projectId: string;
 }) {
   const toneCls = {
     red: "text-red-500",
@@ -40,9 +41,14 @@ function SignalCard({
       {tasks && tasks.length > 0 && (
         <ul className="mt-2 space-y-1 border-t border-border pt-2">
           {tasks.map((t) => (
-            <li key={t.id} className="flex items-center justify-between gap-2 text-xs">
-              <span className="truncate text-foreground/80">{t.title}</span>
-              <span className="shrink-0 text-[10px] text-muted-foreground">{t.reason}</span>
+            <li key={t.id}>
+              <Link
+                href={`/projects/${projectId}/board?task=${t.id}`}
+                className="-mx-1.5 flex items-center justify-between gap-2 rounded px-1.5 py-1 text-xs transition-colors hover:bg-accent"
+              >
+                <span className="truncate text-foreground/80">{t.title}</span>
+                <span className="shrink-0 text-[10px] text-muted-foreground">{t.reason}</span>
+              </Link>
             </li>
           ))}
         </ul>
@@ -133,10 +139,10 @@ export default async function ProjectFlowPage({ params }: { params: Promise<{ id
 
         {/* Signals */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <SignalCard icon={AlertTriangle} tone="red" title="지연" count={flow.signals.overdue.length} tasks={flow.signals.overdue} />
-          <SignalCard icon={Ban} tone="amber" title="막힘 (선행 미완)" count={flow.signals.blocked.length} tasks={flow.signals.blocked} />
-          <SignalCard icon={Clock} tone="violet" title="정체 (7일+)" count={flow.signals.stale.length} tasks={flow.signals.stale} />
-          <SignalCard icon={UserX} tone="muted" title="미할당" count={flow.signals.unassigned} />
+          <SignalCard icon={AlertTriangle} tone="red" title="지연" count={flow.signals.overdue.length} tasks={flow.signals.overdue} projectId={id} />
+          <SignalCard icon={Ban} tone="amber" title="막힘 (선행 미완)" count={flow.signals.blocked.length} tasks={flow.signals.blocked} projectId={id} />
+          <SignalCard icon={Clock} tone="violet" title="정체 (7일+)" count={flow.signals.stale.length} tasks={flow.signals.stale} projectId={id} />
+          <SignalCard icon={UserX} tone="muted" title="미할당" count={flow.signals.unassigned} projectId={id} />
         </div>
 
         {/* Epic swimlanes */}

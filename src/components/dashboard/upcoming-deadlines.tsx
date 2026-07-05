@@ -14,7 +14,7 @@ export function UpcomingDeadlines({ tasks }: UpcomingDeadlinesProps) {
       <h3 className="text-sm font-semibold">다가오는 마감일</h3>
       <div className="space-y-2">
         {tasks.map((task) => (
-          <Link key={task.id} href={`/projects/${task.projectId}/board`} className="flex items-center gap-3 text-sm hover:bg-accent/50 rounded-md px-1 py-0.5 -mx-1 transition-colors">
+          <Link key={task.id} href={`/projects/${task.projectId}/board?task=${task.id}`} className="flex items-center gap-3 text-sm hover:bg-accent/50 rounded-md px-1 py-0.5 -mx-1 transition-colors">
             <Calendar className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
             <span className="flex-1 truncate">{task.title}</span>
             <span className="text-xs text-muted-foreground">{task.projectName}</span>
