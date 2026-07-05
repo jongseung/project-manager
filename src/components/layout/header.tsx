@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Bell, Check, AtSign, Activity, ArrowRight } from "lucide-react";
+import { Bell, Check, AtSign, Activity, ArrowRight, Search } from "lucide-react";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
@@ -147,6 +147,17 @@ export function Header({ title, children }: HeaderProps) {
       {title && <h1 className="text-[15px] font-semibold tracking-tight mr-auto">{title}</h1>}
       {children}
       <div className="flex items-center gap-2 ml-auto">
+
+        {/* Global search / command hub — discoverable entry to ⌘K */}
+        <button
+          onClick={() => window.dispatchEvent(new CustomEvent("open-command-palette"))}
+          className="flex h-8 items-center gap-2 rounded-md border border-border bg-muted/40 px-2.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          aria-label="검색 (Cmd+K)"
+        >
+          <Search className="h-3.5 w-3.5" />
+          <span className="hidden md:inline">검색</span>
+          <kbd className="hidden md:inline-flex h-4 items-center rounded border border-border bg-background px-1 text-[10px] font-medium">⌘K</kbd>
+        </button>
 
         <Popover open={open} onOpenChange={handleOpen}>
           <PopoverTrigger asChild>

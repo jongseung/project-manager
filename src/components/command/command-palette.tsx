@@ -59,8 +59,13 @@ export function CommandPalette() {
         setOpen((prev) => !prev);
       }
     }
+    function openHandler() { setOpen(true); }
     document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener("open-command-palette", openHandler);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("open-command-palette", openHandler);
+    };
   }, []);
 
   const searchTasks = useCallback(async (q: string) => {
