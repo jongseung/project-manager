@@ -371,11 +371,13 @@ export function ConnectionGraph({ nodes, edges, projectId }: Props) {
           </p>
           <Button
             variant="outline" size="sm" className="mt-2 w-full"
-            onClick={() => router.push(
-              selectedNode.type === "task"
-                ? `/projects/${projectId}/board?task=${selectedNode.id}`
-                : `/projects/${projectId}/board`
-            )}
+            onClick={() => {
+              const q =
+                selectedNode.type === "task" ? `?task=${selectedNode.id}` :
+                selectedNode.type === "epic" ? `?epic=${selectedNode.id}` :
+                selectedNode.type === "story" ? `?story=${selectedNode.id}` : "";
+              router.push(`/projects/${projectId}/board${q}`);
+            }}
           >
             {selectedNode.type === "task" ? "태스크 열기" : "보드에서 보기"}
           </Button>

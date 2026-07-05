@@ -153,7 +153,7 @@ export default async function ProjectFlowPage({ params }: { params: Promise<{ id
             </div>
             <div className="divide-y divide-border">
               {flow.epics.map((e) => (
-                <div key={e.id} className="flex items-center gap-4 px-4 py-3">
+                <Link key={e.id} href={`/projects/${id}/board?epic=${e.id}`} className="flex items-center gap-4 px-4 py-3 transition-colors hover:bg-accent/60">
                   <div className="w-48 shrink-0">
                     <p className="truncate text-sm font-medium">{e.name}</p>
                     <p className="text-xs text-muted-foreground">{e.done}/{e.total} 완료 · {e.progress}%</p>
@@ -176,7 +176,7 @@ export default async function ProjectFlowPage({ params }: { params: Promise<{ id
                   ) : (
                     <span className="w-8 shrink-0" />
                   )}
-                </div>
+                </Link>
               ))}
             </div>
           </div>

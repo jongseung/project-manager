@@ -41,14 +41,15 @@ export function BoardView({ project, tasks, members, labels, epics = [], stories
     }
   }, [taskParam]);
 
-  // Filters
+  // Filters — initialized from URL params so links can deep-link a filtered view
+  // (e.g. flow view / graph → /board?epic=<id>).
   const [search, setSearch] = useState("");
-  const [filterMember, setFilterMember] = useState<string>("all");
-  const [filterPriority, setFilterPriority] = useState<string>("all");
-  const [filterLabel, setFilterLabel] = useState<string>("all");
-  const [filterEpic, setFilterEpic] = useState<string>("all");
-  const [filterStory, setFilterStory] = useState<string>("all");
-  const [filterSprint, setFilterSprint] = useState<string>("all");
+  const [filterMember, setFilterMember] = useState<string>(searchParams.get("member") ?? "all");
+  const [filterPriority, setFilterPriority] = useState<string>(searchParams.get("priority") ?? "all");
+  const [filterLabel, setFilterLabel] = useState<string>(searchParams.get("label") ?? "all");
+  const [filterEpic, setFilterEpic] = useState<string>(searchParams.get("epic") ?? "all");
+  const [filterStory, setFilterStory] = useState<string>(searchParams.get("story") ?? "all");
+  const [filterSprint, setFilterSprint] = useState<string>(searchParams.get("sprint") ?? "all");
 
   const filteredTasks = useMemo(() => {
     return tasks.filter((t) => {
