@@ -191,7 +191,7 @@ function SidebarContent({
                         return (
                           <Link
                             key={project.id}
-                            href={`/projects/${project.id}/board`}
+                            href={`/projects/${project.id}/flow`}
                             onClick={onNavigate}
                             className={cn(
                               "flex items-center gap-2 rounded-md px-2.5 py-1.5 text-[13px] transition-colors",

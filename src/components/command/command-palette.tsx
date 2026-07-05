@@ -105,9 +105,9 @@ export function CommandPalette() {
     if (item.type === "nav") {
       router.push(item.href);
     } else if (item.type === "project") {
-      router.push(`/projects/${item.id}/board`);
+      router.push(`/projects/${item.id}/flow`);
     } else if (item.type === "epic") {
-      router.push(`/projects/${item.projectId}/board`);
+      router.push(`/projects/${item.projectId}/board?epic=${item.id}`);
     } else if (item.type === "task") {
       // Deep-link so the task opens directly on the board (find → open).
       router.push(`/projects/${item.projectId}/board?task=${item.id}`);

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { format } from "date-fns";
 import { db } from "@/lib/db";
 import { Header } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,15 @@ export default async function WorkspaceDetailPage({ params }: { params: Promise<
   const workspace = await db.workspace.findUnique({
     where: { id },
     include: {
-      projects: { orderBy: { name: "asc" } },
+      projects: {
+        orderBy: { name: "asc" },
+        include: {
+          tasks: {
+            where: { archivedAt: null, parentTaskId: null },
+            select: { status: true, dueDate: true },
+          },
+        },
+      },
     },
   });
 
@@ -21,6 +30,19 @@ export default async function WorkspaceDetailPage({ params }: { params: Promise<
 
   const ctx = await requireOrganization();
   if (workspace.organizationId && workspace.organizationId !== ctx.organization.id) notFound();
+
+  const todayStr = format(new Date(), "yyyy-MM-dd");
+  const projects = workspace.projects.map(({ tasks, ...project }) => ({
+    ...project,
+    stats: {
+      total: tasks.length,
+      done: tasks.filter((t) => t.status === "done").length,
+      inReview: tasks.filter((t) => t.status === "in_review").length,
+      inProgress: tasks.filter((t) => t.status === "in_progress").length,
+      todo: tasks.filter((t) => t.status === "todo" || t.status === "backlog").length,
+      overdue: tasks.filter((t) => t.dueDate && t.dueDate < todayStr && t.status !== "done" && t.status !== "cancelled").length,
+    },
+  }));
 
   return (
     <div>
@@ -30,7 +52,7 @@ export default async function WorkspaceDetailPage({ params }: { params: Promise<
         </Link>
         <WorkspaceProjectActions workspaceId={workspace.id} />
       </Header>
-      <WorkspaceProjectList projects={workspace.projects} />
+      <WorkspaceProjectList projects={projects} />
     </div>
   );
 }

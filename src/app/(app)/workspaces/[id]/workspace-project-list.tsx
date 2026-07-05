@@ -2,13 +2,13 @@
 
 import { useState, useMemo } from "react";
 import { FolderOpen, EyeOff, Eye } from "lucide-react";
-import { ProjectCard } from "@/components/project/project-card";
+import { ProjectCard, type ProjectStats } from "@/components/project/project-card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
 import type { Project } from "@prisma/client";
 
 interface WorkspaceProjectListProps {
-  projects: Project[];
+  projects: (Project & { stats: ProjectStats })[];
 }
 
 const HIDDEN_STATUSES = ["completed", "archived"];
@@ -37,9 +37,9 @@ export function WorkspaceProjectList({ projects }: WorkspaceProjectListProps) {
             onClick={() => setShowHidden(!showHidden)}
           >
             {showHidden ? (
-              <><EyeOff className="h-3.5 w-3.5 mr-1" />Hide finished ({hiddenCount})</>
+              <><EyeOff className="h-3.5 w-3.5 mr-1" />완료 숨기기 ({hiddenCount})</>
             ) : (
-              <><Eye className="h-3.5 w-3.5 mr-1" />Show finished ({hiddenCount})</>
+              <><Eye className="h-3.5 w-3.5 mr-1" />완료 보기 ({hiddenCount})</>
             )}
           </Button>
         </div>
@@ -54,7 +54,7 @@ export function WorkspaceProjectList({ projects }: WorkspaceProjectListProps) {
       ) : (
         <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {visibleProjects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
+            <ProjectCard key={project.id} project={project} stats={project.stats} />
           ))}
         </div>
       )}

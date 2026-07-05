@@ -9,6 +9,7 @@ export default async function ProjectPage({
 }) {
   const { id } = await params;
   const { task } = await searchParams;
-  // Forward ?task= so deep-links to the project root still open the task.
-  redirect(`/projects/${id}/board${task ? `?task=${task}` : ""}`);
+  // A task deep-link opens on the board; otherwise land on the 흐름(flow)
+  // overview so the project's status & progress are visible immediately.
+  redirect(task ? `/projects/${id}/board?task=${task}` : `/projects/${id}/flow`);
 }
