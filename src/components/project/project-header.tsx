@@ -11,6 +11,7 @@ import { MoreHorizontal, Trash2, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSoftDelete } from "@/hooks/use-soft-delete";
 import { deleteProject, restoreProject } from "@/actions/project";
+import { ProjectStatusStrip } from "./project-status-strip";
 
 interface ProjectHeaderProps {
   projectId: string;
@@ -136,6 +137,8 @@ export function ProjectHeader({ projectId, projectName, projectColor, workspaceN
               })}
             </DropdownMenuContent>
           </DropdownMenu>
+
+          <ProjectStatusStrip projectId={projectId} />
         </div>
       </div>
 
