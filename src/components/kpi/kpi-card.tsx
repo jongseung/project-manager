@@ -34,7 +34,7 @@ export function KPICard({ name, currentValue, targetValue, unit, direction }: KP
         </div>
         <div className="h-2 rounded-full bg-muted overflow-hidden mt-2">
           <div
-            className={cn("h-full rounded-full transition-all", isGood ? "bg-green-500" : "bg-blue-500")}
+            className={cn("h-full rounded-full transition-all", isGood ? "bg-emerald-500" : "bg-amber-500")}
             style={{ width: `${Math.min(progress, 100)}%` }}
           />
         </div>

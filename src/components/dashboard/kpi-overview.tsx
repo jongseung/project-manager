@@ -56,7 +56,7 @@ export function KPIOverview({ objectives }: KPIOverviewProps) {
                 <div className="flex items-center gap-3">
                   <div className="h-2 flex-1 rounded-full bg-muted overflow-hidden">
                     <div
-                      className={`h-full rounded-full transition-all ${totalProgress >= 80 ? "bg-green-500" : totalProgress >= 40 ? "bg-blue-500" : "bg-yellow-500"}`}
+                      className={`h-full rounded-full transition-all ${totalProgress >= 80 ? "bg-emerald-500" : totalProgress >= 40 ? "bg-primary/50" : "bg-amber-500"}`}
                       style={{ width: `${totalProgress}%` }}
                     />
                   </div>

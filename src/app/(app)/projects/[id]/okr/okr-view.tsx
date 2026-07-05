@@ -172,7 +172,7 @@ export function OKRView({ projectId, objectives }: OKRViewProps) {
                       <div className="flex items-center gap-3">
                         <div className="h-2 flex-1 rounded-full bg-muted overflow-hidden">
                           <div
-                            className={`h-full rounded-full transition-all ${pct >= 100 ? "bg-green-500" : pct >= 50 ? "bg-blue-500" : "bg-yellow-500"}`}
+                            className={`h-full rounded-full transition-all ${pct >= 100 ? "bg-emerald-500" : pct >= 50 ? "bg-primary/50" : "bg-amber-500"}`}
                             style={{ width: `${pct}%` }}
                           />
                         </div>

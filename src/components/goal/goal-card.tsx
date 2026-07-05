@@ -40,7 +40,7 @@ export function GoalCard({ goal }: GoalCardProps) {
   return (
     <div className="relative group">
       <Link href={`/goals/${goal.id}`}>
-        <Card className="hover:shadow-md transition-shadow cursor-pointer">
+        <Card className="cursor-pointer transition-colors hover:border-foreground/20">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">

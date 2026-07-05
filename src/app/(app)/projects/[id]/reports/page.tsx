@@ -159,7 +159,7 @@ export default async function ReportsPage({ params }: { params: Promise<{ id: st
           </div>
 
           <div className="rounded-lg border p-4">
-            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Cycle Time</h3>
+            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">사이클 타임</h3>
             {cycle.count === 0 ? (
               <p className="text-sm text-muted-foreground">완료된 태스크가 아직 없습니다.</p>
             ) : (

@@ -153,7 +153,7 @@ export function SprintDetail({ sprint, allTasks, stories = [] }: SprintDetailPro
           <div className="flex items-center gap-2">
             <span className="text-[10px] w-10 text-muted-foreground">기간</span>
             <div className="h-2 flex-1 rounded-full bg-muted overflow-hidden">
-              <div className={cn("h-full rounded-full transition-all", daysPct > progress + 20 ? "bg-red-400" : "bg-blue-400")} style={{ width: `${daysPct}%` }} />
+              <div className={cn("h-full rounded-full transition-all", daysPct > progress + 20 ? "bg-red-400" : "bg-primary/40")} style={{ width: `${daysPct}%` }} />
             </div>
             <span className="text-[10px] w-8 text-right font-medium">{daysPct}%</span>
           </div>
@@ -223,7 +223,7 @@ export function SprintDetail({ sprint, allTasks, stories = [] }: SprintDetailPro
             <div className="border-t pt-4 space-y-2">
               <div className="flex items-center gap-2">
                 <MessageSquare className="h-4 w-4 text-primary" />
-                <span className="text-sm font-semibold">Sprint 회고</span>
+                <span className="text-sm font-semibold">스프린트 회고</span>
               </div>
               <div className="grid grid-cols-1 gap-2">
                 <div className="space-y-1">
