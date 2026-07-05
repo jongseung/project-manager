@@ -2,6 +2,9 @@ import { Calendar, CheckCircle2 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/utils";
+import { SPRINT_STATUS_TONE } from "@/lib/status-styles";
+
+const SPRINT_LABEL: Record<string, string> = { planning: "계획", active: "진행 중", completed: "완료" };
 
 interface SprintCardProps {
   sprint: {
@@ -14,12 +17,6 @@ interface SprintCardProps {
   };
 }
 
-const STATUS_BADGE: Record<string, string> = {
-  planning: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
-  active: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-  completed: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-};
-
 export function SprintCard({ sprint }: SprintCardProps) {
   const total = sprint.tasks.length;
   const completed = sprint.tasks.filter((t) => t.task.status === "done").length;
@@ -30,8 +27,8 @@ export function SprintCard({ sprint }: SprintCardProps) {
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-base">{sprint.name}</CardTitle>
-          <Badge className={STATUS_BADGE[sprint.status] ?? ""} variant="secondary">
-            {sprint.status}
+          <Badge className={SPRINT_STATUS_TONE[sprint.status] ?? ""} variant="secondary">
+            {SPRINT_LABEL[sprint.status] ?? sprint.status}
           </Badge>
         </div>
         <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1">
@@ -41,7 +38,7 @@ export function SprintCard({ sprint }: SprintCardProps) {
           </span>
           <span className="flex items-center gap-1">
             <CheckCircle2 className="h-3 w-3" />
-            {completed}/{total} tasks
+            {completed}/{total} 태스크
           </span>
         </div>
         <div className="h-2 rounded-full bg-muted overflow-hidden mt-2">

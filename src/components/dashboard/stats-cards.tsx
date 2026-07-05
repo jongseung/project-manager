@@ -10,10 +10,10 @@ interface StatsCardsProps {
 
 export function StatsCards({ totalTasks, completedTasks, overdueTasks, activeProjects }: StatsCardsProps) {
   const stats = [
-    { label: "전체 태스크", value: totalTasks, icon: Clock, color: "text-blue-500" },
-    { label: "완료", value: completedTasks, icon: CheckCircle2, color: "text-green-500" },
+    { label: "전체 태스크", value: totalTasks, icon: Clock, color: "text-muted-foreground" },
+    { label: "완료", value: completedTasks, icon: CheckCircle2, color: "text-emerald-500" },
     { label: "지연", value: overdueTasks, icon: AlertTriangle, color: "text-red-500" },
-    { label: "진행 중 프로젝트", value: activeProjects, icon: FolderKanban, color: "text-purple-500" },
+    { label: "진행 중 프로젝트", value: activeProjects, icon: FolderKanban, color: "text-muted-foreground" },
   ];
 
   return (

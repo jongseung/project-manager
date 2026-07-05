@@ -11,6 +11,11 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useSoftDelete } from "@/hooks/use-soft-delete";
 import { deleteGoal, restoreGoal } from "@/actions/goal";
+import { GOAL_STATUS_TONE } from "@/lib/status-styles";
+
+const GOAL_LABEL: Record<string, string> = {
+  not_started: "시작 전", in_progress: "진행 중", achieved: "달성", missed: "미달성", abandoned: "중단",
+};
 
 interface GoalCardProps {
   goal: {
@@ -22,14 +27,6 @@ interface GoalCardProps {
     completedTasks: number;
   };
 }
-
-const STATUS_COLORS: Record<string, string> = {
-  not_started: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
-  in_progress: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-  achieved: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-  missed: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
-  abandoned: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
-};
 
 export function GoalCard({ goal }: GoalCardProps) {
   const router = useRouter();
@@ -50,8 +47,8 @@ export function GoalCard({ goal }: GoalCardProps) {
                 <Target className="h-4 w-4 text-muted-foreground" />
                 <CardTitle className="text-base">{goal.title}</CardTitle>
               </div>
-              <Badge className={STATUS_COLORS[goal.status] ?? ""} variant="secondary">
-                {goal.status.replace("_", " ")}
+              <Badge className={GOAL_STATUS_TONE[goal.status] ?? ""} variant="secondary">
+                {GOAL_LABEL[goal.status] ?? goal.status}
               </Badge>
             </div>
             <div className="flex items-center gap-2 mt-2">
@@ -61,7 +58,7 @@ export function GoalCard({ goal }: GoalCardProps) {
               <span className="text-xs text-muted-foreground">{goal.progress}%</span>
             </div>
             <CardDescription className="text-xs mt-1">
-              {goal.completedTasks}/{goal.totalTasks} tasks completed
+              태스크 {goal.completedTasks}/{goal.totalTasks} 완료
             </CardDescription>
           </CardHeader>
         </Card>

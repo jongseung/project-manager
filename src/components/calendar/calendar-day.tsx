@@ -32,15 +32,15 @@ export function CalendarDay({ date, tasks, isCurrentMonth, isToday }: CalendarDa
             className={cn(
               "truncate rounded px-1 py-0.5 text-xs",
               task.status === "done"
-                ? "bg-green-100 text-green-700 line-through"
-                : "bg-blue-100 text-blue-700"
+                ? "bg-muted text-muted-foreground line-through"
+                : "bg-blue-500/12 text-blue-700 dark:text-blue-400"
             )}
           >
             {task.title}
           </div>
         ))}
         {tasks.length > 3 && (
-          <span className="text-xs text-muted-foreground px-1">+{tasks.length - 3} more</span>
+          <span className="text-xs text-muted-foreground px-1">+{tasks.length - 3}개</span>
         )}
       </div>
     </div>

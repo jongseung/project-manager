@@ -56,9 +56,9 @@ export function MemberWorkload({ members }: MemberWorkloadProps) {
               {/* Stacked bar */}
               <div className="h-2 rounded-full bg-muted overflow-hidden flex" style={{ width: `${Math.max(barWidth, 8)}%` }}>
                 {member.overdue > 0 && <div className="h-full bg-red-500" style={{ width: `${active > 0 ? (member.overdue / active) * 100 : 0}%` }} />}
-                {member.inProgress > 0 && <div className="h-full bg-yellow-500" style={{ width: `${active > 0 ? (member.inProgress / active) * 100 : 0}%` }} />}
-                {member.inReview > 0 && <div className="h-full bg-purple-500" style={{ width: `${active > 0 ? (member.inReview / active) * 100 : 0}%` }} />}
-                {member.todo > 0 && <div className="h-full bg-blue-400" style={{ width: `${active > 0 ? (member.todo / active) * 100 : 0}%` }} />}
+                {member.inProgress > 0 && <div className="h-full bg-amber-400" style={{ width: `${active > 0 ? (member.inProgress / active) * 100 : 0}%` }} />}
+                {member.inReview > 0 && <div className="h-full bg-violet-400" style={{ width: `${active > 0 ? (member.inReview / active) * 100 : 0}%` }} />}
+                {member.todo > 0 && <div className="h-full bg-slate-400" style={{ width: `${active > 0 ? (member.todo / active) * 100 : 0}%` }} />}
               </div>
             </div>
           );
@@ -67,9 +67,9 @@ export function MemberWorkload({ members }: MemberWorkloadProps) {
         {/* Legend */}
         <div className="flex items-center gap-3 pt-1 text-[10px] text-muted-foreground">
           <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-red-500" />지연</span>
-          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-yellow-500" />진행</span>
-          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-purple-500" />검토</span>
-          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-blue-400" />할 일</span>
+          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-amber-400" />진행</span>
+          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-violet-400" />검토</span>
+          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-slate-400" />할 일</span>
         </div>
       </CardContent>
     </Card>

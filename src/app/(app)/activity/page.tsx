@@ -10,15 +10,15 @@ import { formatRelativeDate } from "@/lib/utils";
 const PAGE_SIZE = 100;
 
 const ACTION_ICONS: Record<string, { icon: typeof Plus; tone: string; label: string }> = {
-  created: { icon: Plus, tone: "text-green-600 bg-green-50 dark:bg-green-950", label: "생성" },
-  updated: { icon: Edit3, tone: "text-blue-600 bg-blue-50 dark:bg-blue-950", label: "수정" },
-  deleted: { icon: Trash2, tone: "text-orange-600 bg-orange-50 dark:bg-orange-950", label: "삭제" },
-  purged: { icon: Trash2, tone: "text-red-600 bg-red-50 dark:bg-red-950", label: "영구 삭제" },
-  restored: { icon: ArchiveRestore, tone: "text-emerald-600 bg-emerald-50 dark:bg-emerald-950", label: "복원" },
-  archived: { icon: Archive, tone: "text-gray-600 bg-gray-50 dark:bg-gray-900", label: "보관" },
-  status_changed: { icon: RefreshCw, tone: "text-violet-600 bg-violet-50 dark:bg-violet-950", label: "상태 변경" },
-  completed: { icon: CheckCircle2, tone: "text-green-600 bg-green-50 dark:bg-green-950", label: "완료" },
-  moved: { icon: Shuffle, tone: "text-indigo-600 bg-indigo-50 dark:bg-indigo-950", label: "이동" },
+  created: { icon: Plus, tone: "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10", label: "생성" },
+  updated: { icon: Edit3, tone: "text-blue-600 dark:text-blue-400 bg-blue-500/10", label: "수정" },
+  deleted: { icon: Trash2, tone: "text-amber-600 dark:text-amber-400 bg-amber-500/10", label: "삭제" },
+  purged: { icon: Trash2, tone: "text-red-600 dark:text-red-400 bg-red-500/10", label: "영구 삭제" },
+  restored: { icon: ArchiveRestore, tone: "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10", label: "복원" },
+  archived: { icon: Archive, tone: "text-muted-foreground bg-muted", label: "보관" },
+  status_changed: { icon: RefreshCw, tone: "text-violet-600 dark:text-violet-400 bg-violet-500/10", label: "상태 변경" },
+  completed: { icon: CheckCircle2, tone: "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10", label: "완료" },
+  moved: { icon: Shuffle, tone: "text-blue-600 dark:text-blue-400 bg-blue-500/10", label: "이동" },
 };
 
 const ENTITY_LABELS: Record<string, string> = {

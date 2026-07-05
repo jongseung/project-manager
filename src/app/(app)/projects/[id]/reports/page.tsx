@@ -137,8 +137,8 @@ export default async function ReportsPage({ params }: { params: Promise<{ id: st
                 <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">프로젝트 헬스</h3>
                 <div className="flex items-baseline gap-2 mt-1">
                   <span className={`text-3xl font-bold ${
-                    health.level === "green" ? "text-green-600" :
-                    health.level === "yellow" ? "text-yellow-600" : "text-red-600"
+                    health.level === "green" ? "text-emerald-600 dark:text-emerald-400" :
+                    health.level === "yellow" ? "text-amber-600 dark:text-amber-400" : "text-red-600 dark:text-red-400"
                   }`}>
                     {health.score}
                   </span>
@@ -146,9 +146,9 @@ export default async function ReportsPage({ params }: { params: Promise<{ id: st
                 </div>
               </div>
               <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                health.level === "green" ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" :
-                health.level === "yellow" ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400" :
-                "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                health.level === "green" ? "bg-emerald-500/12 text-emerald-700 dark:text-emerald-400" :
+                health.level === "yellow" ? "bg-amber-500/12 text-amber-700 dark:text-amber-400" :
+                "bg-red-500/12 text-red-700 dark:text-red-400"
               }`}>
                 {health.level === "green" ? "양호" : health.level === "yellow" ? "주의" : "위험"}
               </span>

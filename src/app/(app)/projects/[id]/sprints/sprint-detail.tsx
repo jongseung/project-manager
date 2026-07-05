@@ -40,17 +40,17 @@ interface SprintDetailProps {
 
 const STATUS_CONFIG: Record<string, { badge: string; label: string; guide: string }> = {
   planning: {
-    badge: "bg-gray-100 text-gray-700",
+    badge: "bg-muted text-muted-foreground",
     label: "계획 중",
     guide: "[계획 단계] 백로그에서 이번 스프린트에 수행할 태스크를 선택하세요. 스프린트 목표를 기준으로 우선순위가 높은 항목부터 추가합니다.",
   },
   active: {
-    badge: "bg-green-100 text-green-700",
+    badge: "bg-amber-500/12 text-amber-700 dark:text-amber-400",
     label: "진행 중",
     guide: "[진행 단계] 칸반보드에서 태스크를 실행하세요. 매일 진행률을 확인하며, 태스크 완료율이 경과 시간보다 앞서야 정상 페이스입니다.",
   },
   completed: {
-    badge: "bg-blue-100 text-blue-700",
+    badge: "bg-emerald-500/12 text-emerald-700 dark:text-emerald-400",
     label: "완료",
     guide: "[완료] 스프린트 목표 달성 여부를 확인하고, 아래 회고를 작성해주세요. 미완료 태스크는 다음 스프린트로 이월합니다.",
   },
@@ -264,15 +264,22 @@ export function SprintDetail({ sprint, allTasks, stories = [] }: SprintDetailPro
           {sprint.status === "active" && (
             <div className="border-t pt-3">
               <p className="text-xs font-medium mb-2">스프린트 건강 상태</p>
-              <div className="flex gap-3">
-                {progress >= daysPct ? (
-                  <Badge variant="outline" className="text-green-600 border-green-300">정상 진행 - 태스크 완료율이 일정 경과율보다 앞서고 있습니다</Badge>
-                ) : daysPct - progress <= 20 ? (
-                  <Badge variant="outline" className="text-yellow-600 border-yellow-300">주의 필요 - 일정 대비 진행이 약간 느립니다. 병목 확인이 필요합니다</Badge>
-                ) : (
-                  <Badge variant="outline" className="text-red-600 border-red-300">지연 - 일정 대비 진행이 뒤처져 있습니다. 스코프 조정을 검토하세요</Badge>
-                )}
-              </div>
+              {progress >= daysPct ? (
+                <div className="flex items-start gap-2">
+                  <Badge className="shrink-0 bg-emerald-500/12 text-emerald-700 dark:text-emerald-400">정상</Badge>
+                  <p className="text-xs text-muted-foreground">태스크 완료율이 일정 경과율보다 앞서고 있습니다.</p>
+                </div>
+              ) : daysPct - progress <= 20 ? (
+                <div className="flex items-start gap-2">
+                  <Badge className="shrink-0 bg-amber-500/12 text-amber-700 dark:text-amber-400">주의</Badge>
+                  <p className="text-xs text-muted-foreground">일정 대비 진행이 약간 느립니다. 병목 확인이 필요합니다.</p>
+                </div>
+              ) : (
+                <div className="flex items-start gap-2">
+                  <Badge className="shrink-0 bg-red-500/12 text-red-700 dark:text-red-400">지연</Badge>
+                  <p className="text-xs text-muted-foreground">일정 대비 진행이 뒤처져 있습니다. 스코프 조정을 검토하세요.</p>
+                </div>
+              )}
             </div>
           )}
         </CardContent>

@@ -50,11 +50,11 @@ export function TimelineBar({ taskId, title, status, startDate, dueDate, startOf
           <button
             className={cn(
               "absolute top-1.5 h-6 rounded-md px-2 flex items-center text-xs font-medium shadow-sm border cursor-pointer hover:ring-2 hover:ring-primary/30 transition-all overflow-hidden",
-              isOverdue ? "bg-red-100 text-red-700 border-red-400 ring-1 ring-red-300" :
-              status === "done" ? "bg-green-100 text-green-700 border-green-300" :
-              status === "in_progress" ? "bg-blue-100 text-blue-700 border-blue-300" :
-              status === "in_review" ? "bg-purple-100 text-purple-700 border-purple-300" :
-              "bg-gray-100 text-gray-700 border-gray-300"
+              isOverdue ? "bg-red-500/12 text-red-700 dark:text-red-400 border-red-500/40 ring-1 ring-red-500/25" :
+              status === "done" ? "bg-emerald-500/12 text-emerald-700 dark:text-emerald-400 border-emerald-500/30" :
+              status === "in_progress" ? "bg-amber-500/14 text-amber-700 dark:text-amber-400 border-amber-500/30" :
+              status === "in_review" ? "bg-violet-500/12 text-violet-700 dark:text-violet-400 border-violet-500/30" :
+              "bg-muted text-muted-foreground border-border"
             )}
             style={{ left: barLeft, width: Math.max(barWidth, dayWidth), minWidth: 0 }}
           >

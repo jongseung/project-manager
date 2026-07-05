@@ -455,7 +455,7 @@ export function StandupView({ data }: { data: StandupData }) {
 
       {/* ───── 섹션 3: 인사이트 (자동 감지, 쓰기 없음) ───── */}
       {visibleInsights.length > 0 && (
-        <Card className="border-yellow-200 dark:border-yellow-900">
+        <Card>
           <CardContent className="pt-5">
             <SectionHeader number={3} icon={AlertTriangle} title="인사이트" count={visibleInsights.length} />
             <div className="space-y-1.5">
@@ -615,13 +615,13 @@ export function StandupView({ data }: { data: StandupData }) {
       )}
 
       {/* 저장 버튼 — 하단 중앙 고정 */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40">
+      <div className="fixed bottom-6 left-1/2 z-40 max-w-[calc(100vw-2rem)] -translate-x-1/2">
         <Button size="lg" onClick={handleSave} disabled={saving} className="h-12 px-8 text-base font-semibold shadow-2xl gap-2 hover:scale-105 transition-transform">
           <Save className="h-5 w-5" />
           {saving ? "저장 중..." : "스크럼 저장"}
         </Button>
       </div>
-      <div className="h-16" />
+      <div className="h-24" />
     </div>
   );
 }
