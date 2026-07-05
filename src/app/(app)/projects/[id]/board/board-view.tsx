@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { KanbanBoard } from "@/components/board/kanban-board";
 import { TaskCreateDialog } from "@/components/task/task-create-dialog";
 import { TaskDetailPanel } from "@/components/task/task-detail-panel";
@@ -29,6 +30,16 @@ export function BoardView({ project, tasks, members, labels, epics = [], stories
   const [createStatus, setCreateStatus] = useState<string>("todo");
   const [selectedTask, setSelectedTask] = useState<{ id: string } | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
+
+  // Deep-link: /board?task=<id> opens that task directly (e.g. from search).
+  const searchParams = useSearchParams();
+  const taskParam = searchParams.get("task");
+  useEffect(() => {
+    if (taskParam) {
+      setSelectedTask({ id: taskParam });
+      setDetailOpen(true);
+    }
+  }, [taskParam]);
 
   // Filters
   const [search, setSearch] = useState("");
