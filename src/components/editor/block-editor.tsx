@@ -49,7 +49,7 @@ export function BlockEditor({ content, onChange, editable = true, taskId }: Bloc
 
   return (
     <div className="min-h-[120px] max-h-[360px] overflow-y-auto rounded-md border bn-small bg-background">
-      <style>{`.bn-small .bn-editor { font-size: 13px; background: transparent !important; } .bn-small .bn-block-content { padding: 2px 0; } .bn-small .bn-container { background: transparent !important; } .bn-small .bn-default-styles { background: transparent !important; }`}</style>
+      <style>{`.bn-small .bn-editor { font-size: 13px; background: transparent !important; padding-inline: 12px !important; } .bn-small .bn-block-content { padding: 2px 0; } .bn-small .bn-container { background: transparent !important; } .bn-small .bn-default-styles { background: transparent !important; }`}</style>
       <BlockNoteView editor={editor} editable={editable} theme={resolvedTheme === "dark" ? "dark" : "light"} />
     </div>
   );

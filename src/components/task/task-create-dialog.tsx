@@ -72,6 +72,20 @@ export function TaskCreateDialog({ open, onOpenChange, projectId, defaultStatus 
     setStatus(defaultStatus);
   }, [defaultEpicId, defaultStoryId, defaultStatus, open]);
 
+  // Start every open with a clean form so a previous task's input (title,
+  // description, labels…) never carries over into the next created task.
+  useEffect(() => {
+    if (!open) return;
+    setTitle("");
+    setDescription("");
+    setPriority("none");
+    setDueDate("");
+    setMemberId("");
+    setSelectedLabelIds([]);
+    setTemplateLoaded(false);
+    setEditorKey((k) => k + 1);
+  }, [open]);
+
   const { execute, isPending } = useServerAction(
     async (input: Parameters<typeof createTask>[0]) => createTask(input),
     {

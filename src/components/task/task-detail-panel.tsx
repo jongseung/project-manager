@@ -509,20 +509,21 @@ export function TaskDetailPanel({ task: taskRef, open, onOpenChange }: TaskDetai
           </div>
 
           {/* 설명 */}
-          <div>
+          <div className="border-t pt-4">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="text-xs font-semibold">설명</span>
+              {description !== (task.description ?? "") && (
+                <Button size="sm" variant="ghost" className="h-6 gap-1 px-2 text-primary" onClick={handleSave} disabled={saving} title="설명 저장">
+                  <Save className="h-3.5 w-3.5" /> 저장
+                </Button>
+              )}
+            </div>
             <BlockEditor
+              key={task.id}
               content={description}
               onChange={(val) => { setDescription(val); }}
               taskId={task.id}
             />
-            {description !== (task.description ?? "") && (
-              <div className="flex items-center gap-1.5 mt-1.5">
-                <Button size="icon" variant="ghost" className="h-6 w-6 text-primary" onClick={handleSave} disabled={saving} title="설명 저장">
-                  <Save className="h-3.5 w-3.5" />
-                </Button>
-                <span className="text-[10px] text-muted-foreground">변경됨</span>
-              </div>
-            )}
           </div>
 
           {/* 서브태스크 */}

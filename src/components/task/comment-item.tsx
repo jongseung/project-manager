@@ -58,6 +58,10 @@ export function CommentItem({
   const [isPending, startTransition] = useTransition();
   const replyEditorApi = useRef<CommentEditorRef | null>(null);
 
+  // Match free-text authorName to a member to colorize the avatar.
+  const authorColor = members.find((m) => m.name === comment.authorName)?.color ?? "#94a3b8";
+  const authorInitial = comment.authorName.charAt(0).toUpperCase();
+
   // Aggregate reactions by emoji.
   const reactionGroups = useMemo(() => {
     const map = new Map<string, { count: number; mine: boolean; authors: string[] }>();
@@ -103,8 +107,16 @@ export function CommentItem({
   return (
     <div className={cn("space-y-2", depth > 0 && "pl-4 border-l-2 border-muted")}>
       <div className="rounded-lg bg-muted/40 px-3 py-2">
-        <div className="flex items-center justify-between mb-0.5">
-          <span className="text-xs font-semibold">{comment.authorName}</span>
+        <div className="flex items-center justify-between mb-1">
+          <span className="flex items-center gap-1.5">
+            <span
+              className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[9px] font-semibold text-white"
+              style={{ backgroundColor: authorColor }}
+            >
+              {authorInitial}
+            </span>
+            <span className="text-xs font-semibold">{comment.authorName}</span>
+          </span>
           <span className="text-[10px] text-muted-foreground">
             {formatRelativeDate(new Date(comment.createdAt))}
           </span>
