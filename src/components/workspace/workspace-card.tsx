@@ -12,11 +12,23 @@ import { useSoftDelete } from "@/hooks/use-soft-delete";
 import { deleteWorkspace, restoreWorkspace } from "@/actions/workspace";
 import type { WorkspaceWithProjects } from "@/types";
 
-interface WorkspaceCardProps {
-  workspace: WorkspaceWithProjects;
+export interface WorkspaceStats {
+  activeProjects: number;
+  total: number;
+  done: number;
+  inReview: number;
+  inProgress: number;
+  todo: number;
+  overdue: number;
 }
 
-export function WorkspaceCard({ workspace }: WorkspaceCardProps) {
+interface WorkspaceCardProps {
+  workspace: WorkspaceWithProjects;
+  stats?: WorkspaceStats;
+}
+
+export function WorkspaceCard({ workspace, stats }: WorkspaceCardProps) {
+  const pct = stats && stats.total > 0 ? Math.round((stats.done / stats.total) * 100) : 0;
   const router = useRouter();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const { del } = useSoftDelete({
@@ -28,22 +40,42 @@ export function WorkspaceCard({ workspace }: WorkspaceCardProps) {
   return (
     <div className="relative group">
       <Link href={`/workspaces/${workspace.id}`}>
-        <Card className="hover:shadow-md transition-shadow cursor-pointer">
+        <Card className="cursor-pointer transition-colors hover:border-foreground/20">
           <CardHeader>
             <div className="flex items-center gap-3">
               <div
-                className="h-8 w-8 rounded-lg flex items-center justify-center text-white"
+                className="h-8 w-8 rounded-lg flex items-center justify-center text-white shrink-0"
                 style={{ backgroundColor: workspace.color }}
               >
                 <Briefcase className="h-4 w-4" />
               </div>
-              <div>
-                <CardTitle className="text-base">{workspace.name}</CardTitle>
+              <div className="min-w-0">
+                <CardTitle className="truncate text-base">{workspace.name}</CardTitle>
                 <CardDescription>
-                  {workspace.projects.length} project{workspace.projects.length !== 1 ? "s" : ""}
+                  프로젝트 {workspace.projects.length}개
+                  {stats && stats.activeProjects > 0 && ` · 진행중 ${stats.activeProjects}`}
                 </CardDescription>
               </div>
             </div>
+
+            {/* At-a-glance workspace progress */}
+            {stats && stats.total > 0 && (
+              <div className="mt-3 space-y-1.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">{stats.done}/{stats.total} 완료</span>
+                  <span className="flex items-center gap-2 tabular-nums">
+                    {stats.overdue > 0 && <span className="font-medium text-red-500">지연 {stats.overdue}</span>}
+                    <span className="font-semibold">{pct}%</span>
+                  </span>
+                </div>
+                <div className="flex h-2 overflow-hidden rounded-full bg-muted">
+                  <div className="h-full bg-emerald-500" style={{ width: `${(stats.done / stats.total) * 100}%` }} />
+                  <div className="h-full bg-violet-400" style={{ width: `${(stats.inReview / stats.total) * 100}%` }} />
+                  <div className="h-full bg-amber-400" style={{ width: `${(stats.inProgress / stats.total) * 100}%` }} />
+                  <div className="h-full bg-slate-400" style={{ width: `${(stats.todo / stats.total) * 100}%` }} />
+                </div>
+              </div>
+            )}
           </CardHeader>
         </Card>
       </Link>
