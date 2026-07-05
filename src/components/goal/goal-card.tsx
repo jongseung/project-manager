@@ -67,7 +67,7 @@ export function GoalCard({ goal }: GoalCardProps) {
       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => e.preventDefault()}>
+            <Button variant="ghost" size="icon" className="h-7 w-7" aria-label="목표 옵션" onClick={(e) => e.preventDefault()}>
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>

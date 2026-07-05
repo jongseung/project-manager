@@ -56,7 +56,7 @@ export function MilestoneList({ projectId, milestones }: MilestoneListProps) {
             </div>
             <Badge className={MILESTONE_STATUS_TONE[m.status] ?? ""} variant="secondary">{MILESTONE_LABEL[m.status] ?? m.status}</Badge>
             <DropdownMenu>
-              <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>
+              <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7" aria-label="마일스톤 옵션"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 {m.status === "pending" && <DropdownMenuItem onClick={() => markReached(m.id)}>달성 처리</DropdownMenuItem>}
                 <DropdownMenuItem className="text-destructive" onSelect={(e) => { e.preventDefault(); setConfirmId(m.id); }}><Trash2 className="h-4 w-4 mr-2" /> 삭제</DropdownMenuItem>

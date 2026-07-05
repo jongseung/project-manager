@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import dynamic from "next/dynamic";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -86,16 +88,23 @@ export function TaskCreateDialog({ open, onOpenChange, projectId, defaultStatus 
     setEditorKey((k) => k + 1);
   }, [open]);
 
+  const router = useRouter();
   const { execute, isPending } = useServerAction(
     async (input: Parameters<typeof createTask>[0]) => createTask(input),
     {
-      successMessage: "태스크가 생성되었습니다",
       onSuccess: async (task) => {
         for (const labelId of selectedLabelIds) {
           await assignLabel(task.id, labelId);
         }
         resetForm();
         onOpenChange(false);
+        // Keep the flow going: let the user jump straight into the new task.
+        toast.success("태스크가 생성되었습니다", {
+          action: {
+            label: "열기",
+            onClick: () => router.push(`/projects/${projectId}/board?task=${task.id}`),
+          },
+        });
       },
     }
   );

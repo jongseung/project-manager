@@ -83,7 +83,7 @@ export function WorkspaceCard({ workspace, stats }: WorkspaceCardProps) {
       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => e.preventDefault()}>
+            <Button variant="ghost" size="icon" className="h-7 w-7" aria-label="워크스페이스 옵션" onClick={(e) => e.preventDefault()}>
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
